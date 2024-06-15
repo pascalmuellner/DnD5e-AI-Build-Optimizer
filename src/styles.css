@@ -1,18 +1,32 @@
-char_name_row {
-    child-space: 1s;
-    col-between: 200px;
+.row_char_name {
+    background-color: aqua;
+    child-left: 20px;
+    child-top: 10px;
+    col-between: 100px;
+    height: auto;
+}
+.row_char_class {
+    background-color: aqua;
+    child-left: 20px;
+    child-top: 10px;
+    col-between: 100px;
+    height: auto;
 }
 label {
-    border-width: 1px;
-    border-color: black;
+    text-align: center;
+    border-width: 10px;
     background-color: lightgray;
     width:auto;
     height:auto;
-}
-label.char_name_label {
     background-color: red;
 }
-char_name_textbox {
+label.char_name_label {
+    background-color: white;
+}
+label.char_main_class_label {
+    background-color: white;
+}
+.char_name_textbox {
     min-width: 100px;
-    height: auto;
+    height: 30px;
 }
