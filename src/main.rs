@@ -25,12 +25,13 @@ fn main() {
 
     let rogue = Class::create_rogue();
     let artificer = Class::create_artificer();
-    let mut character = character::Character::create_character("Kuro".to_string(), rogue);
+    let fighter = Class::create_fighter();
+    let mut character = character::Character::create_character("Kuro".to_string(), rogue, character::HitpointsType::Average);
 
     println!("{:#?}", character);
-    character.level_up(rogue);
-    character.level_up(artificer);
-    println!("{:#?}", character);
+    // character.level_up(rogue);
+    // character.level_up(fighter);
+    // println!("{:#?}", character);
     
     // let _ = Application::new(|cx| {
     //     cx.emit(EnvironmentEvent::SetLocale(langid!("de")));

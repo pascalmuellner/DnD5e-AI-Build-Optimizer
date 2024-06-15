@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 vizia = {git = "https://github.com/vizia/vizia"}
 rand = "0.8.5"
+num = "0.4.3"
