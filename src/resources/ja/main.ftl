@@ -1,0 +1,1 @@
+char_name = 名前

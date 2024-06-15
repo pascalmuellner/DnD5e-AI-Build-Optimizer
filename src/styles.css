@@ -1,0 +1,18 @@
+char_name_row {
+    child-space: 1s;
+    col-between: 200px;
+}
+label {
+    border-width: 1px;
+    border-color: black;
+    background-color: lightgray;
+    width:auto;
+    height:auto;
+}
+label.char_name_label {
+    background-color: red;
+}
+char_name_textbox {
+    min-width: 100px;
+    height: auto;
+}
