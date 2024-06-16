@@ -1,66 +1,94 @@
-use character_derived_lenses::hitpoints_type;
 use num::Integer;
 use rand::Rng;
 use vizia::prelude::*;
 
 #[derive(Lens, Debug)]
-pub struct Character {
+pub struct Unit {
+    pub unit_type: UnitType,
     pub character_name: String,
     pub character_level: i32,
     pub hitpoints: i32,
     pub hitpoints_type: HitpointsType,
     pub movement_speed: i32,
-    pub starting_class: Class,
+    pub starting_class: Option<Class>,
     pub additional_classes: Vec<Class>,
+    pub action_count: i32,
 }
 
-impl Character {
-    pub fn create_character(name: String, class: Class, hitpointstype: HitpointsType) -> Self {
-        
-        let mut hp = 0;
+impl Unit {
+    pub fn create_player_character(name: String, class: Class, hitpointstype: HitpointsType) -> Self {
+        let hp: i32;
         if hitpointstype == HitpointsType::Random {
             hp = get_random_dice_value(class.hit_die);
-        }
-        else {
+        } else {
             hp = get_average_dice_value(class.hit_die);
         }
 
-        let character = Character {
+        let character = Unit {
+            unit_type: UnitType::Player,
             character_name: name,
             character_level: class.class_level,
             hitpoints: hp,
             hitpoints_type: hitpointstype,
             movement_speed: 30,
-            starting_class: class,
+            starting_class: Some(class),
             additional_classes: Vec::new(),
+            action_count: 1,
         };
         return character;
+    }
+    pub fn create_goblin() -> Unit{
+        Unit {
+            unit_type: UnitType::Enemy,
+            character_name: "Goblin".to_string(),
+            character_level: 1,
+            hitpoints: 8,
+            hitpoints_type: HitpointsType::Average,
+            movement_speed: 20,
+            starting_class: None,
+            additional_classes: Vec::new(),
+            action_count: 1,
+        }
     }
     /// level up a class for the character
     pub fn level_up(&mut self, class: Class) {
         // check if the class is the starting class
-        if self.starting_class.class_name == class.class_name {
-            self.starting_class.level_up();
+        if self.starting_class.unwrap().class_name == class.class_name {
+            self.starting_class.unwrap().level_up();
         }
-        // check if the class is a multi class and get the index if it is 
-        else if let Some(index) = self.additional_classes.iter().position(|i| i.class_name==class.class_name) {
-               self.additional_classes[index].level_up();
+        // check if the class is a multi class and get the index if it is
+        else if let Some(index) = self
+            .additional_classes
+            .iter()
+            .position(|i| i.class_name == class.class_name)
+        {
+            self.additional_classes[index].level_up();
         }
         // add the class as multi class
         else {
-            self.add_additional_class(class); 
+            self.add_additional_class(class);
         }
 
         // also update character level and hit points
         self.character_level += 1;
         if self.hitpoints_type == HitpointsType::Random {
             self.hitpoints += get_random_dice_value(class.hit_die);
-        }
-        else {
+        } else {
             self.hitpoints += get_average_dice_value(class.hit_die);
         }
     }
-    fn add_additional_class(&mut self, class: Class){
+    pub fn melee_attack(&mut self, target: &mut Unit){
+        if self.action_count > 0 {
+            self.action_count -= 1;
+            let damage_value = get_random_dice_value(DieType::D6);
+            println!("Damage: {}", damage_value);
+            target.hitpoints -= damage_value;
+        }
+        else {
+            print!("No action left!");
+        }
+    }
+    fn add_additional_class(&mut self, class: Class) {
         self.additional_classes.push(class);
     }
 }
@@ -79,7 +107,7 @@ impl Class {
     pub fn create_artificer() -> Self {
         let class = Class {
             class_name: ClassName::Artificer,
-            hit_die: DieType::d8,
+            hit_die: DieType::D8,
             class_level: 1,
         };
         return class;
@@ -87,7 +115,7 @@ impl Class {
     pub fn create_barbarian() -> Self {
         let class = Class {
             class_name: ClassName::Barbarian,
-            hit_die: DieType::d12,
+            hit_die: DieType::D12,
             class_level: 1,
         };
         return class;
@@ -95,7 +123,7 @@ impl Class {
     pub fn create_bard() -> Self {
         let class = Class {
             class_name: ClassName::Bard,
-            hit_die: DieType::d8,
+            hit_die: DieType::D8,
             class_level: 1,
         };
         return class;
@@ -103,7 +131,7 @@ impl Class {
     pub fn create_cleric() -> Self {
         let class = Class {
             class_name: ClassName::Cleric,
-            hit_die: DieType::d8,
+            hit_die: DieType::D8,
             class_level: 1,
         };
         return class;
@@ -111,7 +139,7 @@ impl Class {
     pub fn create_druid() -> Self {
         let class = Class {
             class_name: ClassName::Druid,
-            hit_die: DieType::d8,
+            hit_die: DieType::D8,
             class_level: 1,
         };
         return class;
@@ -119,7 +147,7 @@ impl Class {
     pub fn create_fighter() -> Self {
         let class = Class {
             class_name: ClassName::Fighter,
-            hit_die: DieType::d10,
+            hit_die: DieType::D10,
             class_level: 1,
         };
         return class;
@@ -127,7 +155,7 @@ impl Class {
     pub fn create_monk() -> Self {
         let class = Class {
             class_name: ClassName::Monk,
-            hit_die: DieType::d8,
+            hit_die: DieType::D8,
             class_level: 1,
         };
         return class;
@@ -135,7 +163,7 @@ impl Class {
     pub fn create_paladin() -> Self {
         let class = Class {
             class_name: ClassName::Paladin,
-            hit_die: DieType::d8,
+            hit_die: DieType::D8,
             class_level: 1,
         };
         return class;
@@ -143,7 +171,7 @@ impl Class {
     pub fn create_ranger() -> Self {
         let class = Class {
             class_name: ClassName::Ranger,
-            hit_die: DieType::d8,
+            hit_die: DieType::D8,
             class_level: 1,
         };
         return class;
@@ -151,7 +179,7 @@ impl Class {
     pub fn create_rogue() -> Self {
         let class = Class {
             class_name: ClassName::Rogue,
-            hit_die: DieType::d8,
+            hit_die: DieType::D8,
             class_level: 1,
         };
         return class;
@@ -159,7 +187,7 @@ impl Class {
     pub fn create_sorcerer() -> Self {
         let class = Class {
             class_name: ClassName::Sorcerer,
-            hit_die: DieType::d6,
+            hit_die: DieType::D6,
             class_level: 1,
         };
         return class;
@@ -167,7 +195,7 @@ impl Class {
     pub fn create_warlock() -> Self {
         let class = Class {
             class_name: ClassName::Warlock,
-            hit_die: DieType::d8,
+            hit_die: DieType::D8,
             class_level: 1,
         };
         return class;
@@ -175,7 +203,7 @@ impl Class {
     pub fn create_wizard() -> Self {
         let class = Class {
             class_name: ClassName::Wizard,
-            hit_die: DieType::d6,
+            hit_die: DieType::D6,
             class_level: 1,
         };
         return class;
@@ -204,38 +232,52 @@ pub enum ClassName {
     Wizard,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum DieType{
-    d4,
-    d6,
-    d8,
-    d10,
-    d12,
-    d20,
+pub enum UnitType {
+    Player,
+    Enemy,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum EnemyType {
+    Humanoid,
+    Insect,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum HumanoidType{
+    Goblin,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum DieType {
+    D4,
+    D6,
+    D8,
+    D10,
+    D12,
+    D20,
 }
 
 fn get_random_dice_value(die: DieType) -> i32 {
     match die {
-        DieType::d4 => rand::thread_rng().gen_range(1..=4),
-        DieType::d6 => rand::thread_rng().gen_range(1..=6),
-        DieType::d8 => rand::thread_rng().gen_range(1..=8),
-        DieType::d10 => rand::thread_rng().gen_range(1..=10),
-        DieType::d12 => rand::thread_rng().gen_range(1..=12),
-        DieType::d20 => rand::thread_rng().gen_range(1..=20),
+        DieType::D4 => rand::thread_rng().gen_range(1..=4),
+        DieType::D6 => rand::thread_rng().gen_range(1..=6),
+        DieType::D8 => rand::thread_rng().gen_range(1..=8),
+        DieType::D10 => rand::thread_rng().gen_range(1..=10),
+        DieType::D12 => rand::thread_rng().gen_range(1..=12),
+        DieType::D20 => rand::thread_rng().gen_range(1..=20),
     }
 }
 
 fn get_average_dice_value(die: DieType) -> i32 {
     match die {
-        DieType::d4 => average(1..=4, 4),
-        DieType::d6 => average(1..=6,6),
-        DieType::d8 => average(1..=8,8),
-        DieType::d10 => average(1..=10,10),
-        DieType::d12 => average(1..=12,12),
-        DieType::d20 => average(1..=20,20),
+        DieType::D4 => average(1..=4, 4),
+        DieType::D6 => average(1..=6, 6),
+        DieType::D8 => average(1..=8, 8),
+        DieType::D10 => average(1..=10, 10),
+        DieType::D12 => average(1..=12, 12),
+        DieType::D20 => average(1..=20, 20),
     }
 }
 
 fn average(numbers: std::ops::RangeInclusive<i32>, count: i32) -> i32 {
     let sum: i32 = numbers.into_iter().sum();
-    sum.div_ceil(&count) 
+    sum.div_ceil(&count)
 }

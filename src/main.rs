@@ -1,7 +1,8 @@
 mod character;
+// use character::Unit::melee_attack;
 use std::{alloc::Layout, vec};
 
-use character::Class;
+use character::{Class};
 use combo_box_derived_lenses::list_lens;
 use vizia::prelude::*;
 #[derive(Lens)]
@@ -24,11 +25,12 @@ impl Model for AppData {
 fn main() {
 
     let rogue = Class::create_rogue();
-    let artificer = Class::create_artificer();
-    let fighter = Class::create_fighter();
-    let mut character = character::Character::create_character("Kuro".to_string(), rogue, character::HitpointsType::Average);
-
+    let mut character = character::Unit::create_player_character("Kuro".to_string(), rogue, character::HitpointsType::Average);
     println!("{:#?}", character);
+    let mut goblin = character::Unit::create_goblin();
+    println!("{:#?}", goblin);
+    character.melee_attack(&mut goblin);
+    println!("{:#?}", goblin);
     // character.level_up(rogue);
     // character.level_up(fighter);
     // println!("{:#?}", character);
