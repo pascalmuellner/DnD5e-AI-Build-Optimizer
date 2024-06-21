@@ -2,7 +2,7 @@ use num::Integer;
 use rand::Rng;
 use vizia::prelude::*;
 
-#[derive(Lens, Debug)]
+#[derive(Lens, Debug, PartialEq, Eq, Clone)]
 pub struct Unit {
     pub unit_type: UnitType,
     pub character_name: String,
@@ -87,6 +87,9 @@ impl Unit {
         else {
             print!("No action left!");
         }
+    }
+    pub fn calculate_initiative(&self) -> i32 {
+        get_random_dice_value(DieType::D20)
     }
     fn add_additional_class(&mut self, class: Class) {
         self.additional_classes.push(class);
