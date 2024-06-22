@@ -32,11 +32,11 @@ fn main() {
     let mut goblin = unit::Unit::create_goblin();
     // println!("{:#?}", goblin);
 
-    let mut combat = Combat::new(vec![&character], vec![&goblin]);
+    let mut combat = Combat::new(&vec![character], &vec![goblin]);
 
     combat.start();
-    combat.fight(combat.turn_order[0]);
-    println!("{:#?}", goblin);
+    combat.fight(combat.turn_order[0].clone());
+    // println!("{:#?}", goblin);
     // character.melee_attack(&mut goblin);
     // println!("{:#?}", goblin);
     // character.level_up(rogue);

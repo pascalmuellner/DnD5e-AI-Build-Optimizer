@@ -1,8 +1,8 @@
 use crate::unit::Unit;
 #[derive(Debug, Clone)]
-pub struct Combat<'a> {
-    player_units: Vec<&'a Unit>,
-    enemy_units: Vec<&'a Unit>,
+pub struct Combat {
+    player_units: Vec<Unit>,
+    enemy_units: Vec<Unit>,
     pub turn_order: Vec<CombatUnit>,
 }
 
@@ -13,13 +13,13 @@ pub struct CombatUnit {
     alive: bool,
 }
 
-impl<'a> Combat<'a>  {
-    pub fn new(player_units: Vec<&'a Unit>, enemy_units: Vec<&'a Unit>) -> Self {
+impl Combat {
+    pub fn new(player_units: &Vec<Unit>, enemy_units: &Vec<Unit>) -> Self {
         let mut turn_order = Vec::<CombatUnit>::new();
-        for unit in &player_units {
+        for unit in player_units {
             let init = unit.calculate_initiative();
             let combat_unit = CombatUnit {
-                unit:  unit.clone().clone(),
+                unit: unit.clone(),
                 initiative: init,
                 alive: true,
             };
@@ -28,7 +28,7 @@ impl<'a> Combat<'a>  {
         for unit in enemy_units.iter() {
             let init = unit.calculate_initiative();
             let combat_unit = CombatUnit {
-                unit: unit.clone().clone(),
+                unit: unit.clone(),
                 initiative: init,
                 alive: true,
             };
@@ -36,8 +36,8 @@ impl<'a> Combat<'a>  {
         }
         turn_order.sort_by_key(|unit| (unit.initiative * -1));
         Self {
-            player_units: player_units,
-            enemy_units: enemy_units,
+            player_units: player_units.to_vec(),
+            enemy_units: enemy_units.to_vec(),
             turn_order,
         }
     }
