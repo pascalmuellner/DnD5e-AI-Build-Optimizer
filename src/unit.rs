@@ -1,9 +1,12 @@
 use num::Integer;
-use std::collections::HashMap;
 use rand::Rng;
 use vizia::prelude::*;
+use serde::{Deserialize, Serialize};
 
-use crate::equipment::{Armor, ArmorSlot, ArmorType, Equipment, Weapon, WeaponSize};
+use crate::equipment::{Armor, ArmorSlots, ArmorType, Equipment, Weapon, WeaponSize};
+
+use std::fs::File;
+use std::io::BufReader;
 
 #[derive(Lens, Debug, PartialEq, Eq, Clone)]
 pub struct Unit {
@@ -45,31 +48,12 @@ impl Unit {
         return character;
     }
     pub fn create_goblin() -> Unit{
-        let dagger = Weapon{
-            name: "Dagger".to_string(),
-            damage_die: DieType::D6,
-            damage_die_count: 1,
-            range: 5,
-            size: WeaponSize::OneHanded,
-        };
-        let chest = Armor{
-            name: "Leather Armor".to_string(),
-            armor_class: 11,
-            armor_type: Some(ArmorType::Light),
-        };
-        let shield = Armor{
-            name: "Shield".to_string(),
-            armor_class: 2,
-            armor_type: Some(ArmorType::Shield),
-        };
-        let mut armor: HashMap<ArmorSlot, Armor> = HashMap::new();
-        armor.insert(ArmorSlot::Chest, chest);
-        armor.insert(ArmorSlot::Shield, shield);
-        let equip = Equipment{
-            armor,
-            melee_weapon: Some(dagger),
-            ranged_weapon: None,
-        };
+        let file = File::open("src/Items/goblin.json").expect("Unable to open file");
+        let reader = BufReader::new(file);
+        // serde_json::to_writer(&mut writer, &equip).expect("Could not write");
+        // writer.flush().expect("Could not flush writer");
+    
+        let goblin_gear: Equipment = serde_json::from_reader(reader).expect("could not read");
         Unit {
             unit_type: UnitType::Enemy,
             character_name: "Goblin".to_string(),
@@ -81,7 +65,7 @@ impl Unit {
             additional_classes: Vec::new(),
             action_count: 1,
             stats: StatBlock::new(8, 14, 10, 10, 8, 8),
-            equipment: equip
+            equipment: goblin_gear
         }
     }
     /// level up a class for the character
@@ -302,7 +286,7 @@ pub enum EnemyType {
 pub enum HumanoidType{
     Goblin,
 }
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
 pub enum DieType {
     D4,
     D6,

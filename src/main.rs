@@ -1,14 +1,19 @@
 mod unit;
 mod combat;
 mod equipment;
-// use character::Unit::melee_attack;
-use std::{collections::HashMap, vec};
 
-use equipment::{Armor, ArmorSlot, ArmorType, Equipment, Weapon, WeaponSize};
+use equipment::{Armor, ArmorSlots, ArmorType, Equipment, Weapon, WeaponSize};
 use unit::{Class, DieType, StatBlock};
 use combat::Combat;
 use combo_box_derived_lenses::list_lens;
 use vizia::prelude::*;
+
+use serde::{Deserialize, Serialize};
+use serde_json::Result;
+
+use std::fs::File;
+use std::io::BufReader;
+
 #[derive(Lens)]
 pub struct AppData {
     pub character_name: String,
@@ -38,6 +43,7 @@ fn main() {
         range: 5,
         size: WeaponSize::OneHanded,
     };
+
     let chest = Armor{
         name: "Studded Leather Armor".to_string(),
         armor_class: 12,
@@ -48,15 +54,13 @@ fn main() {
         armor_class: 2,
         armor_type: Some(ArmorType::Shield)
     };
-    let mut armor: HashMap<ArmorSlot, Armor> = HashMap::new();
-    armor.insert(ArmorSlot::Chest, chest);
-    armor.insert(ArmorSlot::Shield, shield);
+
+    let armor = ArmorSlots::new(Some(chest), None, None, None, Some(shield));
     let equip = Equipment{
         armor,
         melee_weapon: Some(dagger),
         ranged_weapon: None,
     };
-
     let character = unit::Unit::create_player_character("Kuro".to_string(), rogue, stats, unit::HitpointsType::Average, equip);
     // println!("{:#?}", character);
     let goblin = unit::Unit::create_goblin();

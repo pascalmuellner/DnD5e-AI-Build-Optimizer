@@ -1,0 +1,12 @@
+[
+    {
+        "name": "Studded Leather Armor",
+        "armor_class": 12,
+        "armor_type": "Light"
+    },
+    {
+        "name": "Leather Armor",
+        "armor_class": 11,
+        "armor_type": "Light"
+    }
+]
