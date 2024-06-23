@@ -21,14 +21,20 @@
         }
     },
     "melee_weapon": {
-        "item": {
-            "id": 1,
-            "name": "Dagger"
-        },
+        "item_id": 1,
+        "item_name": "Dagger",
         "damage_die": "D4",
         "damage_die_count": 1,
-        "range": 5,
-        "size": "OneHanded"
+        "properties": [
+            "Finesse",
+            "Light",
+            {
+                "Thrown": [
+                    20,
+                    60
+                ]
+            }
+        ]
     },
     "ranged_weapon": null
 }

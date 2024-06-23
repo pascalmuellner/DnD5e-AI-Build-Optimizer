@@ -44,13 +44,21 @@ fn main() {
     let rogue = Class::create_rogue();
     let stats = StatBlock::new(8, 14, 14, 16, 10, 14);
 
-    let weapon_list = WeaponList::new("src/Items/weapons.json");
+    let mut weapon_list = WeaponList::new("src/Items/weapons.json");
     let armor_list = ArmorList::new("src/Items/armors.json");
     let item_list = ItemList::new("src/Items/items.json");
+
+    let weapon = Weapon::new(2, "Greatclub".to_string(), DieType::D4, 1, DamageType::Bludgeoning, vec!{Properties::TwoHanded});
+    // weapon_list.add(weapon);
+    let result = weapon_list.write("src/Items/weapons.json");
+
+    println!("weapons: {:#?}", weapon_list);
+
 
     // println!("weapon_list: {:#?}\r\narmor_list: {:#?}\r\nitem_list: {:#?}\r\n", weapon_list, armor_list, item_list);
 
     println!("armor: {:#?}", armor_list.get_armor(1));
+
 
     let dagger = &weapon_list.weapons[0];
     let chest = armor_list.armors.first();
