@@ -1,19 +1,15 @@
 [
     {
-        "item": {
-            "id": 4,
-            "name": "Dagger"
-        },
+        "item_id": 4,
+        "item_name": "Dagger",
         "damage_die": "D4",
         "damage_die_count": 1,
         "range": 5,
         "size": "OneHanded"
     },
     {
-        "item": {
-            "id": 5,
-            "name": "Short Sword"
-        },
+        "item_id": 5,
+        "item_name": "Short Sword",
         "damage_die": "D6",
         "damage_die_count": 1,
         "range": 5,

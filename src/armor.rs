@@ -6,14 +6,15 @@ use crate::Item;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct Armor {
-    pub item: Item,
+    pub item_id: i32,
+    pub item_name: String,
     pub armor_class: i32,
     pub armor_type: Option<ArmorType>,
 }
 
 impl Armor {
-    pub fn new(item: Item, armor_class: i32, armor_type: Option<ArmorType>) -> Self {
-        Self { item, armor_class, armor_type }
+    pub fn new(item_id: i32, name: String, armor_class: i32, armor_type: Option<ArmorType>) -> Self {
+        Self { item_id, item_name: name, armor_class, armor_type }
     }
 }
 
@@ -31,7 +32,7 @@ impl ArmorList {
     }
     pub fn get_armor(&self, item_id: i32) -> Option<Armor> {
         for armor in self.armors.clone() {
-            if armor.item.id == item_id {
+            if armor.item_id == item_id {
                 return Some(armor);
             }
         }

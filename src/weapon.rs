@@ -2,11 +2,12 @@ use serde::{Deserialize, Serialize};
 use serde_json::Result;
 use std::{fs::File, io::BufReader};
 
-use crate::{unit::DieType, Item};
+use crate::{unit::DieType};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct Weapon {
-    pub item: Item,
+    pub item_id: i32,
+    pub item_name: String,
     pub damage_die: DieType,
     pub damage_die_count: i32,
     pub range: i32,
@@ -14,8 +15,8 @@ pub struct Weapon {
 }
 
 impl Weapon {
-    pub fn new(item: Item, damage_die: DieType, damage_die_count: i32, range: i32, size: WeaponSize) -> Self {
-        Self { item, damage_die, damage_die_count, range, size }
+    pub fn new(item_id: i32, item_name: String, damage_die: DieType, damage_die_count: i32, range: i32, size: WeaponSize) -> Self {
+        Self { item_id, item_name, damage_die, damage_die_count, range, size }
     }
 }
 
@@ -33,7 +34,7 @@ impl WeaponList {
     }
     pub fn get_weapon(&self, item_id: i32) -> Option<Weapon> {
         for weapon in self.weapons.clone() {
-            if weapon.item.id == item_id {
+            if weapon.item_id == item_id {
                 return Some(weapon);
             }
         }
