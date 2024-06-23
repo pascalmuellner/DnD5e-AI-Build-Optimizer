@@ -1,0 +1,22 @@
+[
+    {
+        "id": 1,
+        "name": "Studded Leather Armor"
+    },
+    {
+        "id": 2,
+        "name": "Leather Armor"
+    },
+    {
+        "id": 3,
+        "name": "Shield"
+    },
+    {
+        "id": 4,
+        "name": "Dagger"
+    },
+    {
+        "id": 5,
+        "name": "Short Sword"
+    }
+]

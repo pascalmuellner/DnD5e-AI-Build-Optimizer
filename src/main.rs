@@ -1,8 +1,15 @@
 mod unit;
 mod combat;
 mod equipment;
+mod weapon;
+mod armor;
+mod item;
 
-use equipment::{Armor, ArmorSlots, ArmorType, Equipment, Weapon, WeaponSize};
+use armor::*;
+use weapon::*;
+use item::*;
+use equipment::*;
+use item::ItemList;
 use unit::{Class, DieType, StatBlock};
 use combat::Combat;
 use combo_box_derived_lenses::list_lens;
@@ -10,6 +17,7 @@ use vizia::prelude::*;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
+
 
 use std::fs::File;
 use std::io::BufReader;
@@ -36,29 +44,21 @@ fn main() {
     let rogue = Class::create_rogue();
     let stats = StatBlock::new(8, 14, 14, 16, 10, 14);
 
-    let dagger = Weapon{
-        name: "Dagger".to_string(),
-        damage_die: DieType::D6,
-        damage_die_count: 1,
-        range: 5,
-        size: WeaponSize::OneHanded,
-    };
+    let weapon_list = WeaponList::new("src/Items/weapons.json");
+    let armor_list = ArmorList::new("src/Items/armors.json");
+    let item_list = ItemList::new("src/Items/items.json");
 
-    let chest = Armor{
-        name: "Studded Leather Armor".to_string(),
-        armor_class: 12,
-        armor_type: Some(ArmorType::Light),
-    };
-    let shield = Armor{
-        name: "Shield".to_string(),
-        armor_class: 2,
-        armor_type: Some(ArmorType::Shield)
-    };
+    // println!("weapon_list: {:#?}\r\narmor_list: {:#?}\r\nitem_list: {:#?}\r\n", weapon_list, armor_list, item_list);
 
-    let armor = ArmorSlots::new(Some(chest), None, None, None, Some(shield));
+    println!("armor: {:#?}", armor_list.get_armor(1));
+
+    let dagger = &weapon_list.weapons[0];
+    let chest = armor_list.armors.first();
+    let shield = armor_list.armors.last();
+    let armor = ArmorSlots::new(chest.cloned(), None, None, None, shield.cloned());
     let equip = Equipment{
         armor,
-        melee_weapon: Some(dagger),
+        melee_weapon: Some(dagger.clone()),
         ranged_weapon: None,
     };
     let character = unit::Unit::create_player_character("Kuro".to_string(), rogue, stats, unit::HitpointsType::Average, equip);

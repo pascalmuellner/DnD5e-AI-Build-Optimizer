@@ -1,0 +1,26 @@
+[
+    {
+        "item": {
+            "id": 1,
+            "name": "Studded Leather Armor"
+        },
+        "armor_class": 12,
+        "armor_type": "Light"
+    },
+    {
+        "item": {
+            "id": 2,
+            "name": "Leather Armor"
+        },
+        "armor_class": 11,
+        "armor_type": "Light"
+    },
+    {
+        "item": {
+            "id": 3,
+            "name": "Shield"
+        },
+        "armor_class": 2,
+        "armor_type": "Shield"
+    }
+]

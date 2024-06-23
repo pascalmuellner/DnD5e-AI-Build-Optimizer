@@ -1,21 +1,30 @@
 {
     "armor": {
         "chest": {
-            "name": "Studded Leather Armor",
-            "armor_class": 12,
+            "item": {
+                "id": 2,
+                "name": "Leather Armor"
+            },
+            "armor_class": 11,
             "armor_type": "Light"
         },
         "boots": null,
         "gloves": null,
         "helmet": null,
         "shield": {
-            "name": "Shield",
+            "item": {
+                "id": 3,
+                "name": "Shield"
+            },
             "armor_class": 2,
             "armor_type": "Shield"
         }
     },
     "melee_weapon": {
-        "name": "Dagger",
+        "item": {
+            "id": 1,
+            "name": "Dagger"
+        },
         "damage_die": "D4",
         "damage_die_count": 1,
         "range": 5,

@@ -3,7 +3,10 @@ use rand::Rng;
 use vizia::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::equipment::{Armor, ArmorSlots, ArmorType, Equipment, Weapon, WeaponSize};
+use crate::equipment::*;
+use crate::armor::*;
+use crate::weapon::*;
+use crate::item::*;
 
 use std::fs::File;
 use std::io::BufReader;
@@ -50,9 +53,6 @@ impl Unit {
     pub fn create_goblin() -> Unit{
         let file = File::open("src/Items/goblin.json").expect("Unable to open file");
         let reader = BufReader::new(file);
-        // serde_json::to_writer(&mut writer, &equip).expect("Could not write");
-        // writer.flush().expect("Could not flush writer");
-    
         let goblin_gear: Equipment = serde_json::from_reader(reader).expect("could not read");
         Unit {
             unit_type: UnitType::Enemy,
