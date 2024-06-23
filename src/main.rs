@@ -1,9 +1,11 @@
 mod unit;
 mod combat;
+mod equipment;
 // use character::Unit::melee_attack;
-use std::vec;
+use std::{collections::HashMap, vec};
 
-use unit::Class;
+use equipment::{Armor, ArmorSlot, ArmorType, Equipment, Weapon, WeaponSize};
+use unit::{Class, DieType, StatBlock};
 use combat::Combat;
 use combo_box_derived_lenses::list_lens;
 use vizia::prelude::*;
@@ -27,15 +29,49 @@ impl Model for AppData {
 fn main() {
 
     let rogue = Class::create_rogue();
-    let mut character = unit::Unit::create_player_character("Kuro".to_string(), rogue, unit::HitpointsType::Average);
+    let stats = StatBlock::new(8, 14, 14, 16, 10, 14);
+
+    let dagger = Weapon{
+        name: "Dagger".to_string(),
+        damage_die: DieType::D6,
+        damage_die_count: 1,
+        range: 5,
+        size: WeaponSize::OneHanded,
+    };
+    let chest = Armor{
+        name: "Studded Leather Armor".to_string(),
+        armor_class: 12,
+        armor_type: Some(ArmorType::Light),
+    };
+    let shield = Armor{
+        name: "Shield".to_string(),
+        armor_class: 2,
+        armor_type: Some(ArmorType::Shield)
+    };
+    let mut armor: HashMap<ArmorSlot, Armor> = HashMap::new();
+    armor.insert(ArmorSlot::Chest, chest);
+    armor.insert(ArmorSlot::Shield, shield);
+    let equip = Equipment{
+        armor,
+        melee_weapon: Some(dagger),
+        ranged_weapon: None,
+    };
+
+    let character = unit::Unit::create_player_character("Kuro".to_string(), rogue, stats, unit::HitpointsType::Average, equip);
     // println!("{:#?}", character);
-    let mut goblin = unit::Unit::create_goblin();
+    let goblin = unit::Unit::create_goblin();
     // println!("{:#?}", goblin);
 
     let mut combat = Combat::new(&vec![character], &vec![goblin]);
 
     combat.start();
     combat.fight(combat.turn_order[0].clone());
+    let (player_units, enemy_units) = combat.end();
+    println!("Player units: {:#?}", player_units);
+    println!("Enemy units: {:#?}", enemy_units);
+
+
+    
     // println!("{:#?}", goblin);
     // character.melee_attack(&mut goblin);
     // println!("{:#?}", goblin);

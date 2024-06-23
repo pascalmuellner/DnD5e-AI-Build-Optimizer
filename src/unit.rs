@@ -1,6 +1,9 @@
 use num::Integer;
+use std::collections::HashMap;
 use rand::Rng;
 use vizia::prelude::*;
+
+use crate::equipment::{Armor, ArmorSlot, ArmorType, Equipment, Weapon, WeaponSize};
 
 #[derive(Lens, Debug, PartialEq, Eq, Clone)]
 pub struct Unit {
@@ -13,10 +16,12 @@ pub struct Unit {
     pub starting_class: Option<Class>,
     pub additional_classes: Vec<Class>,
     pub action_count: i32,
+    pub stats: StatBlock,
+    pub equipment: Equipment,
 }
 
 impl Unit {
-    pub fn create_player_character(name: String, class: Class, hitpointstype: HitpointsType) -> Self {
+    pub fn create_player_character(name: String, class: Class, stats: StatBlock, hitpointstype: HitpointsType, equip: Equipment) -> Self {
         let hp: i32;
         if hitpointstype == HitpointsType::Random {
             hp = get_random_dice_value(class.hit_die);
@@ -34,10 +39,37 @@ impl Unit {
             starting_class: Some(class),
             additional_classes: Vec::new(),
             action_count: 1,
+            stats,
+            equipment: equip
         };
         return character;
     }
     pub fn create_goblin() -> Unit{
+        let dagger = Weapon{
+            name: "Dagger".to_string(),
+            damage_die: DieType::D6,
+            damage_die_count: 1,
+            range: 5,
+            size: WeaponSize::OneHanded,
+        };
+        let chest = Armor{
+            name: "Leather Armor".to_string(),
+            armor_class: 11,
+            armor_type: Some(ArmorType::Light),
+        };
+        let shield = Armor{
+            name: "Shield".to_string(),
+            armor_class: 2,
+            armor_type: Some(ArmorType::Shield),
+        };
+        let mut armor: HashMap<ArmorSlot, Armor> = HashMap::new();
+        armor.insert(ArmorSlot::Chest, chest);
+        armor.insert(ArmorSlot::Shield, shield);
+        let equip = Equipment{
+            armor,
+            melee_weapon: Some(dagger),
+            ranged_weapon: None,
+        };
         Unit {
             unit_type: UnitType::Enemy,
             character_name: "Goblin".to_string(),
@@ -48,6 +80,8 @@ impl Unit {
             starting_class: None,
             additional_classes: Vec::new(),
             action_count: 1,
+            stats: StatBlock::new(8, 14, 10, 10, 8, 8),
+            equipment: equip
         }
     }
     /// level up a class for the character
@@ -212,7 +246,27 @@ impl Class {
         return class;
     }
 }
-
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct StatBlock {
+    pub intelligence: i32,
+    pub constitution: i32,
+    pub strength: i32,
+    pub dexterity: i32,
+    pub wisdom: i32,
+    pub charisma: i32,
+}
+impl StatBlock {
+    pub fn new(strength: i32, dexterity: i32, constitution: i32, intelligence: i32, wisdom: i32, charisma: i32) -> Self {
+        StatBlock{
+            intelligence,
+            constitution,
+            strength,
+            dexterity,
+            wisdom,
+            charisma,
+        }
+    }
+}
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum HitpointsType {
     Random,

@@ -1,4 +1,6 @@
 use crate::unit::Unit;
+
+/// Combat is the structure that holds the combat relevant functionality.
 #[derive(Debug, Clone)]
 pub struct Combat {
     player_units: Vec<Unit>,
@@ -14,6 +16,10 @@ pub struct CombatUnit {
 }
 
 impl Combat {
+
+    /// Creates a new [`Combat`].
+    /// Initializes the turn order for all units.
+    /// Takes ownership over the units.
     pub fn new(player_units: &Vec<Unit>, enemy_units: &Vec<Unit>) -> Self {
         let mut turn_order = Vec::<CombatUnit>::new();
         for unit in player_units {
@@ -42,11 +48,12 @@ impl Combat {
         }
     }
 
-    /// Returns the start of this [`Combat`].
+    /// Starts the [`Combat`].
     pub fn start(&mut self) {
         println!("Turn Order: {:#?}", self.turn_order);
     }
 
+    /// Creates the fightg for a [`CombatUnit`].
     pub fn fight(&mut self, mut combat_unit: CombatUnit) {
         if combat_unit.unit.action_count > 0 {
             if self.player_units.contains(&&combat_unit.unit) {
@@ -57,5 +64,9 @@ impl Combat {
                 println!("player hp: {:#?}", self.player_units[0].hitpoints);
             }
         }
+    }
+    /// Ends the combat and returns the ownership of the units.
+    pub fn end(self) -> (Vec<Unit>, Vec<Unit>) {
+        return (self.player_units, self.enemy_units)
     }
 }
