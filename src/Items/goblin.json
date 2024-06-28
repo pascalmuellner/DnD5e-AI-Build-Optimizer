@@ -1,10 +1,8 @@
 {
     "armor": {
         "chest": {
-            "item": {
-                "id": 2,
-                "name": "Leather Armor"
-            },
+            "item_id": 2,
+            "item_name": "Leather Armor",
             "armor_class": 11,
             "armor_type": "Light"
         },
@@ -12,10 +10,8 @@
         "gloves": null,
         "helmet": null,
         "shield": {
-            "item": {
-                "id": 3,
-                "name": "Shield"
-            },
+            "item_id": 3,
+            "item_name": "Shield",
             "armor_class": 2,
             "armor_type": "Shield"
         }
@@ -25,6 +21,7 @@
         "item_name": "Dagger",
         "damage_die": "D4",
         "damage_die_count": 1,
+        "damage_type": "Piercing",
         "properties": [
             "Finesse",
             "Light",

@@ -98,9 +98,17 @@ impl Unit {
     pub fn melee_attack(&mut self, target: &mut Unit){
         if self.action_count > 0 {
             self.action_count -= 1;
-            let damage_value = get_random_dice_value(DieType::D6);
-            println!("Damage: {}", damage_value);
-            target.hitpoints -= damage_value;
+            let hit_roll_value = get_random_dice_value(DieType::D20);
+            if hit_roll_value + self.stats.get_dexterity_modifier() >= target.calculate_armor_class() {
+                let damage_value = get_random_dice_value(DieType::D6);
+                println!("Attack hit!");
+                println!("Damage: {}", damage_value);
+                target.hitpoints -= damage_value;
+            }
+            else {
+                println!("Attack missed!");
+            }
+
         }
         else {
             print!("No action left!");
@@ -108,6 +116,29 @@ impl Unit {
     }
     pub fn calculate_initiative(&self) -> i32 {
         get_random_dice_value(DieType::D20)
+    }
+    pub fn calculate_armor_class(&self) -> i32 {
+        let mut armor_class = 0;
+        let dex_modifier = self.stats.get_dexterity_modifier();
+        if self.equipment.armor.chest != None {
+            let armor_type = self.equipment.armor.chest.as_ref().unwrap().armor_type.as_ref().unwrap();
+            if armor_type == &ArmorType::Light {
+                armor_class = dex_modifier;
+            }
+            else if armor_type == &ArmorType::Medium {
+                if dex_modifier > 2 {
+                    armor_class = 2;
+                }
+                else {
+                    armor_class = dex_modifier;
+                }
+            }
+            armor_class += self.equipment.armor.chest.as_ref().unwrap().armor_class;
+        }
+        if self.equipment.armor.shield != None {
+            armor_class += self.equipment.armor.shield.as_ref().unwrap().armor_class;
+        }
+        return armor_class;
     }
     fn add_additional_class(&mut self, class: Class) {
         self.additional_classes.push(class);
@@ -229,6 +260,7 @@ impl Class {
         };
         return class;
     }
+
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct StatBlock {
@@ -249,6 +281,24 @@ impl StatBlock {
             wisdom,
             charisma,
         }
+    }
+    pub fn get_intelligence_modifier(&self) -> i32 {
+        (self.intelligence - 10) % 2
+    }
+    pub fn get_constitution_modifier(&self) -> i32 {
+        (self.constitution - 10) % 2
+    }
+    pub fn get_strength_modifier(&self) -> i32 {
+        (self.strength - 10) % 2
+    }
+    pub fn get_dexterity_modifier(&self) -> i32 {
+        (self.dexterity - 10) % 2
+    }
+    pub fn get_wisdom_modifier(&self) -> i32 {
+        (self.wisdom - 10) % 2
+    }
+    pub fn get_charisma_modifier(&self) -> i32 {
+        (self.charisma - 10) % 2
     }
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
