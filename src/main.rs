@@ -222,8 +222,8 @@ fn main() {
             multi_class_level: (1..21).collect(),
             selected_multi_class: 0,
             multiclass_class_vec: ClassName::get_all_class_names(),
-            selected_main_class_level: 1,
-            selected_multi_class_level: 1,
+            selected_main_class_level: 0,
+            selected_multi_class_level: 0,
         }
         .build(cx);
         VStack::new(cx, |cx| {
@@ -321,7 +321,7 @@ fn main() {
             Binding::new(cx, AppData::multiclass_enabled, |cx, show| {
                 if show.get(cx) {
                     HStack::new(cx, |cx| {
-                        Label::new(cx, Localized::new("sub_class")).class("char_sub_class_label");
+                        Label::new(cx, Localized::new("multiclass")).class("char_multi_class_label");
                         ComboBox::new(
                             cx,
                             AppData::multiclass_class_vec,
@@ -329,10 +329,10 @@ fn main() {
                         )
                         .on_select(|cx, index| cx.emit(AppEvent::SelectMultiClass(index)));
                     })
-                    .class("row_char_sub_class");
+                    .class("row_char_multi_class");
                     HStack::new(cx, |cx| {
-                        Label::new(cx, Localized::new("sub_class_level"))
-                            .class("char_sub_class_level_label");
+                        Label::new(cx, Localized::new("multi_class_level"))
+                            .class("char_multi_class_level_label");
                         PickList::new(cx, AppData::multi_class_level, AppData::selected_multi_class_level, true)
                         .on_select(|cx, index| cx.emit(AppEvent::SetMultiClassLevel(index)))
                         .width(Pixels(100.0))

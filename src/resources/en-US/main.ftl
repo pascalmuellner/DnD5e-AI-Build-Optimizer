@@ -1,1 +1,12 @@
 char_name = Character name
+main_class = Main class
+main_class_level = Level of the main class
+sub_class = Sub class
+int = Intelligence
+str = Strength
+wis = Wisdom
+cha = Charisma
+con = Constitution
+dex = Dexterity
+multiclass = Multi class
+multi_class_level = Multi class level
