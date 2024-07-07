@@ -233,13 +233,13 @@ fn main() {
                     .on_submit(|cx, val, _| cx.emit(AppEvent::CharacterNameInput(val)))
                     .class("char_name_textbox");
             })
-            .class("row_char_name");
+            .class("row");
             HStack::new(cx, |cx| {
                 Label::new(cx, Localized::new("main_class")).class("char_main_class_label");
                 ComboBox::new(cx, AppData::main_class_vec, AppData::selected_main_class)
                     .on_select(|cx, index| cx.emit(AppEvent::SelectMainClass(index)));
             })
-            .class("row_char_main_class");
+            .class("row");
             HStack::new(cx, |cx| {
                 Label::new(cx, Localized::new("int")).class("char_stats_int_label");
                 Textbox::new(cx, AppData::char_stats.then(StatBlock::intelligence))
@@ -249,7 +249,7 @@ fn main() {
                     })
                     .class("stats_int");
             })
-            .class("row_int");
+            .class("row");
             HStack::new(cx, |cx| {
                 Label::new(cx, Localized::new("str")).class("char_stats_int_label");
                 Textbox::new(cx, AppData::char_stats.then(StatBlock::strength))
@@ -259,7 +259,7 @@ fn main() {
                     })
                     .class("stats_str");
             })
-            .class("row_str");
+            .class("row");
             HStack::new(cx, |cx| {
                 Label::new(cx, Localized::new("wis")).class("char_stats_wis_label");
                 Textbox::new(cx, AppData::char_stats.then(StatBlock::wisdom))
@@ -269,7 +269,7 @@ fn main() {
                     })
                     .class("stats_wis");
             })
-            .class("row_wis");
+            .class("row");
             HStack::new(cx, |cx| {
                 Label::new(cx, Localized::new("cha")).class("char_stats_cha_label");
                 Textbox::new(cx, AppData::char_stats.then(StatBlock::charisma))
@@ -279,7 +279,7 @@ fn main() {
                     })
                     .class("stats_cha");
             })
-            .class("row_cha");
+            .class("row");
             HStack::new(cx, |cx| {
                 Label::new(cx, Localized::new("con")).class("char_stats_con_label");
                 Textbox::new(cx, AppData::char_stats.then(StatBlock::constitution))
@@ -289,7 +289,7 @@ fn main() {
                     })
                     .class("stats_con");
             })
-            .class("row_con");
+            .class("row");
             HStack::new(cx, |cx| {
                 Label::new(cx, Localized::new("dex")).class("char_stats_dex_label");
                 Textbox::new(cx, AppData::char_stats.then(StatBlock::dexterity))
@@ -299,7 +299,7 @@ fn main() {
                     })
                     .class("stats_dex");
             })
-            .class("row_dex");
+            .class("row");
             HStack::new(cx, |cx| {
                 Label::new(cx, Localized::new("main_class_level"))
                     .class("char_main_class_level_label");
@@ -308,7 +308,7 @@ fn main() {
                 .width(Pixels(100.0))
                 .class("main_class_level_dropdown");
             })
-            .class("row_char_main_class_level");
+            .class("row");
             HStack::new(cx, |cx| {
                 Label::new(cx, Localized::new("multiclass"))
                     .class("char_multiclass_label")
@@ -317,7 +317,7 @@ fn main() {
                     .on_toggle(|cx| cx.emit(AppEvent::Toggle))
                     .id("multiclass");
             })
-            .class("row_multiclass");
+            .class("row");
             Binding::new(cx, AppData::multiclass_enabled, |cx, show| {
                 if show.get(cx) {
                     HStack::new(cx, |cx| {
@@ -329,7 +329,7 @@ fn main() {
                         )
                         .on_select(|cx, index| cx.emit(AppEvent::SelectMultiClass(index)));
                     })
-                    .class("row_char_multi_class");
+                    .class("row");
                     HStack::new(cx, |cx| {
                         Label::new(cx, Localized::new("multi_class_level"))
                             .class("char_multi_class_level_label");
@@ -338,7 +338,7 @@ fn main() {
                         .width(Pixels(100.0))
                         .class("multi_class_level_dropdown");
                     })
-                    .class("row_char_multi_class_level");
+                    .class("row");
                 }
             });
         })
