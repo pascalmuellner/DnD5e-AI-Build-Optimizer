@@ -14,6 +14,7 @@ use item::ItemList;
 use item::*;
 use unit::{Class, ClassName, DieType, StatBlock, Unit};
 use vizia::prelude::*;
+use vizia::vg::font_style::Width;
 use weapon::*;
 
 use serde::{Deserialize, Serialize};
@@ -238,6 +239,7 @@ fn main() {
                 Label::new(cx, Localized::new("main_class")).class("char_main_class_label");
                 ComboBox::new(cx, AppData::main_class_vec, AppData::selected_main_class)
                     .on_select(|cx, index| cx.emit(AppEvent::SelectMainClass(index)));
+                    // .width(Pixels(100.0));
             })
             .class("row");
             HStack::new(cx, |cx| {

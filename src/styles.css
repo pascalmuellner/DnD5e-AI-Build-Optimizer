@@ -1,25 +1,24 @@
-.row {
-    background-color: aqua;
-    child-left: 20px;
-    child-top: 10px;
-    col-between: 100px;
-    height: auto;
-}
-label {
-    text-align: center;
-    border-width: 10px;
-    background-color: lightgray;
-    width:auto;
-    height:auto;
-    background-color: red;
-}
-label.char_name_label {
-    background-color: white;
-}
-label.char_main_class_label {
-    background-color: white;
-}
 .char_name_textbox {
     min-width: 100px;
     height: 30px;
+}
+.outer_stack {
+    row-between: 8px;
+    child-space: 8px;
+}
+
+.outer_stack > hstack {
+    background-color: aqua;
+    height: auto;
+    child-top: 1s;
+    child-bottom: 1s;
+    col-between: 4px;
+    child-left: 20px;
+}
+.outer_stack > hstack > combobox {
+    background-color: red;
+    width: 100px;
+}
+.outer_stack > hstack > label {
+    width: 50%;
 }
