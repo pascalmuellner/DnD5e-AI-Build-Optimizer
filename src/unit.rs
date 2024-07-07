@@ -1,3 +1,5 @@
+use std::fmt;
+use std::fmt::Display;
 use num::Integer;
 use rand::Rng;
 use vizia::prelude::*;
@@ -10,6 +12,7 @@ use crate::item::*;
 
 use std::fs::File;
 use std::io::BufReader;
+use std::vec;
 
 #[derive(Lens, Debug, PartialEq, Eq, Clone)]
 pub struct Unit {
@@ -262,7 +265,7 @@ impl Class {
     }
 
 }
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Lens, Copy, Debug, PartialEq, Eq)]
 pub struct StatBlock {
     pub intelligence: i32,
     pub constitution: i32,
@@ -306,7 +309,7 @@ pub enum HitpointsType {
     Random,
     Average,
 }
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Data, Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ClassName {
     Artificer,
     Barbarian,
@@ -321,6 +324,18 @@ pub enum ClassName {
     Sorcerer,
     Warlock,
     Wizard,
+}
+impl ClassName {
+    pub fn get_all_class_names() -> Vec<ClassName> {
+        vec![ClassName::Artificer, ClassName::Barbarian, ClassName::Bard, ClassName::Cleric, ClassName::Druid, ClassName::Fighter, ClassName::Monk, ClassName::Paladin, ClassName::Ranger, ClassName::Rogue, ClassName::Sorcerer, ClassName::Warlock, ClassName::Wizard]
+    }
+}
+impl Display for ClassName {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+        // or, alternatively:
+        // fmt::Debug::fmt(self, f)
+    }
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum UnitType {

@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-vizia = {git = "https://github.com/vizia/vizia"}
+vizia = {git = "https://github.com/vizia/vizia", branch = "skia"}
 rand = "0.8.5"
 num = "0.4.3"
 serde_json = "^1.0"
