@@ -119,21 +119,11 @@ impl Model for AppData {
             AppEvent::SetStatsInt(num) => {
                 self.char_stats.intelligence = *num;
             }
-            AppEvent::SetStatsStr(num) => {
-                self.char_stats.strength = *num;
-            }
-            AppEvent::SetStatsWis(num) => {
-                self.char_stats.wisdom = *num;
-            }
-            AppEvent::SetStatsCha(num) => {
-                self.char_stats.charisma = *num;
-            }
-            AppEvent::SetStatsCon(num) => {
-                self.char_stats.constitution = *num;
-            }
-            AppEvent::SetStatsDex(num) => {
-                self.char_stats.dexterity = *num;
-            }
+            AppEvent::SetStatsStr(_) => todo!(),
+            AppEvent::SetStatsWis(_) => todo!(),
+            AppEvent::SetStatsCha(_) => todo!(),
+            AppEvent::SetStatsCon(_) => todo!(),
+            AppEvent::SetStatsDex(_) => todo!(),
         });
     }
 }
@@ -236,109 +226,121 @@ fn main() {
             selected_multi_class_level: 1,
         }
         .build(cx);
-        HStack::new(cx, |cx| {
-            VStack::new(cx, |cx| {
+        VStack::new(cx, |cx| {
+            HStack::new(cx, |cx| {
                 Label::new(cx, Localized::new("char_name")).class("char_name_label");
-                Label::new(cx, Localized::new("main_class")).class("char_main_class_label");
-                Label::new(cx, Localized::new("int")).class("char_stats_int_label");
-                Label::new(cx, Localized::new("str")).class("char_stats_int_label");
-                Label::new(cx, Localized::new("wis")).class("char_stats_wis_label");
-                Label::new(cx, Localized::new("cha")).class("char_stats_cha_label");
-                Label::new(cx, Localized::new("con")).class("char_stats_con_label");
-                Label::new(cx, Localized::new("dex")).class("char_stats_dex_label");
-                Label::new(cx, Localized::new("main_class_level"))
-                    .class("char_main_class_level_label");
-                Label::new(cx, Localized::new("multiclass"))
-                    .class("char_multiclass_label")
-                    .describing("multiclass");
-
-                Binding::new(cx, AppData::multiclass_enabled, |cx, show| {
-                    if show.get(cx) {
-                        HStack::new(cx, |cx| {
-                            Label::new(cx, Localized::new("sub_class"))
-                                .class("char_sub_class_label");
-                        })
-                        .class("row_char_sub_class");
-                        HStack::new(cx, |cx| {
-                            Label::new(cx, Localized::new("sub_class_level"))
-                                .class("char_sub_class_level_label");
-                        })
-                        .class("row_char_sub_class_level");
-                    }
-                });
+                Textbox::new(cx, AppData::character_name)
+                    .on_submit(|cx, val, _| cx.emit(AppEvent::CharacterNameInput(val)))
+                    .class("char_name_textbox");
             })
             .class("row_char_name");
-            VStack::new(cx, |cx| {
-                Textbox::new(cx, AppData::character_name)
-                .on_submit(|cx, val, _| cx.emit(AppEvent::CharacterNameInput(val)))
-                .class("char_name_textbox");
+            HStack::new(cx, |cx| {
+                Label::new(cx, Localized::new("main_class")).class("char_main_class_label");
                 ComboBox::new(cx, AppData::main_class_vec, AppData::selected_main_class)
                     .on_select(|cx, index| cx.emit(AppEvent::SelectMainClass(index)));
+            })
+            .class("row_char_main_class");
+            HStack::new(cx, |cx| {
+                Label::new(cx, Localized::new("int")).class("char_stats_int_label");
                 Textbox::new(cx, AppData::char_stats.then(StatBlock::intelligence))
                     .validate(|val| *val >= 8 && *val <= 18)
                     .on_submit(|cx, val, _| {
                         cx.emit(AppEvent::SetStatsInt(val));
                     })
                     .class("stats_int");
+            })
+            .class("row_int");
+            HStack::new(cx, |cx| {
+                Label::new(cx, Localized::new("str")).class("char_stats_int_label");
                 Textbox::new(cx, AppData::char_stats.then(StatBlock::strength))
                     .validate(|val| *val >= 8 && *val <= 18)
                     .on_submit(|cx, val, _| {
                         cx.emit(AppEvent::SetStatsStr(val));
                     })
                     .class("stats_str");
+            })
+            .class("row_str");
+            HStack::new(cx, |cx| {
+                Label::new(cx, Localized::new("wis")).class("char_stats_wis_label");
                 Textbox::new(cx, AppData::char_stats.then(StatBlock::wisdom))
                     .validate(|val| *val >= 8 && *val <= 18)
                     .on_submit(|cx, val, _| {
                         cx.emit(AppEvent::SetStatsWis(val));
                     })
                     .class("stats_wis");
+            })
+            .class("row_wis");
+            HStack::new(cx, |cx| {
+                Label::new(cx, Localized::new("cha")).class("char_stats_cha_label");
                 Textbox::new(cx, AppData::char_stats.then(StatBlock::charisma))
                     .validate(|val| *val >= 8 && *val <= 18)
                     .on_submit(|cx, val, _| {
                         cx.emit(AppEvent::SetStatsCha(val));
                     })
                     .class("stats_cha");
+            })
+            .class("row_cha");
+            HStack::new(cx, |cx| {
+                Label::new(cx, Localized::new("con")).class("char_stats_con_label");
                 Textbox::new(cx, AppData::char_stats.then(StatBlock::constitution))
                     .validate(|val| *val >= 8 && *val <= 18)
                     .on_submit(|cx, val, _| {
                         cx.emit(AppEvent::SetStatsCon(val));
                     })
                     .class("stats_con");
+            })
+            .class("row_con");
+            HStack::new(cx, |cx| {
+                Label::new(cx, Localized::new("dex")).class("char_stats_dex_label");
                 Textbox::new(cx, AppData::char_stats.then(StatBlock::dexterity))
                     .validate(|val| *val >= 8 && *val <= 18)
                     .on_submit(|cx, val, _| {
                         cx.emit(AppEvent::SetStatsDex(val));
                     })
                     .class("stats_dex");
+            })
+            .class("row_dex");
+            HStack::new(cx, |cx| {
+                Label::new(cx, Localized::new("main_class_level"))
+                    .class("char_main_class_level_label");
                 PickList::new(cx, AppData::main_class_level, AppData::selected_main_class_level, true)
                 .on_select(|cx, index| cx.emit(AppEvent::SetMainClassLevel(index)))
                 .width(Pixels(100.0))
                 .class("main_class_level_dropdown");
+            })
+            .class("row_char_main_class_level");
+            HStack::new(cx, |cx| {
+                Label::new(cx, Localized::new("multiclass"))
+                    .class("char_multiclass_label")
+                    .describing("multiclass");
                 Checkbox::new(cx, AppData::multiclass_enabled)
                     .on_toggle(|cx| cx.emit(AppEvent::Toggle))
                     .id("multiclass");
-                Binding::new(cx, AppData::multiclass_enabled, |cx, show| {
-                    if show.get(cx) {
-                        HStack::new(cx, |cx| {
-                            ComboBox::new(
-                                cx,
-                                AppData::multiclass_class_vec,
-                                AppData::selected_multi_class,
-                            )
-                            .on_select(|cx, index| cx.emit(AppEvent::SelectMultiClass(index)));
-                        })
-                        .class("row_char_sub_class");
-                        HStack::new(cx, |cx| {
-                            PickList::new(cx, AppData::multi_class_level, AppData::selected_multi_class_level, true)
-                            .on_select(|cx, index| cx.emit(AppEvent::SetMultiClassLevel(index)))
-                            .width(Pixels(100.0))
-                            .class("multi_class_level_dropdown");
-                        })
-                        .class("row_char_sub_class_level");
-                    }
-                });
             })
-            .class("row_char_main_class");
+            .class("row_multiclass");
+            Binding::new(cx, AppData::multiclass_enabled, |cx, show| {
+                if show.get(cx) {
+                    HStack::new(cx, |cx| {
+                        Label::new(cx, Localized::new("sub_class")).class("char_sub_class_label");
+                        ComboBox::new(
+                            cx,
+                            AppData::multiclass_class_vec,
+                            AppData::selected_multi_class,
+                        )
+                        .on_select(|cx, index| cx.emit(AppEvent::SelectMultiClass(index)));
+                    })
+                    .class("row_char_sub_class");
+                    HStack::new(cx, |cx| {
+                        Label::new(cx, Localized::new("sub_class_level"))
+                            .class("char_sub_class_level_label");
+                        PickList::new(cx, AppData::multi_class_level, AppData::selected_multi_class_level, true)
+                        .on_select(|cx, index| cx.emit(AppEvent::SetMultiClassLevel(index)))
+                        .width(Pixels(100.0))
+                        .class("multi_class_level_dropdown");
+                    })
+                    .class("row_char_sub_class_level");
+                }
+            });
         })
         .class("outer_stack");
     })

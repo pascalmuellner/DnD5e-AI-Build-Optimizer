@@ -1,0 +1,102 @@
+.row_char_name {
+    background-color: aqua;
+    child-left: 20px;
+    child-top: 10px;
+    col-between: 100px;
+    height: auto;
+}
+.row_str {
+    background-color: aqua;
+    child-left: 20px;
+    child-top: 10px;
+    col-between: 100px;
+    height: auto;
+}
+.row_int {
+    background-color: aqua;
+    child-left: 20px;
+    child-top: 10px;
+    col-between: 100px;
+    height: auto;
+}
+.row_wis {
+    background-color: aqua;
+    child-left: 20px;
+    child-top: 10px;
+    col-between: 100px;
+    height: auto;
+}
+.row_cha {
+    background-color: aqua;
+    child-left: 20px;
+    child-top: 10px;
+    col-between: 100px;
+    height: auto;
+}
+.row_con {
+    background-color: aqua;
+    child-left: 20px;
+    child-top: 10px;
+    col-between: 100px;
+    height: auto;
+}
+.row_dex {
+    background-color: aqua;
+    child-left: 20px;
+    child-top: 10px;
+    col-between: 100px;
+    height: auto;
+}
+.row_char_main_class_level {
+    background-color: aqua;
+    child-left: 20px;
+    child-top: 10px;
+    col-between: 100px;
+    height: auto;
+}
+.row_char_main_class {
+    background-color: aqua;
+    child-left: 20px;
+    child-top: 10px;
+    col-between: 100px;
+    height: auto;
+}
+.row_multiclass {
+    background-color: aqua;
+    child-left: 20px;
+    child-top: 10px;
+    col-between: 100px;
+    height: auto;
+}
+.row_char_sub_class {
+    background-color: aqua;
+    child-left: 20px;
+    child-top: 10px;
+    col-between: 100px;
+    height: auto;
+}
+.row_char_sub_class_level {
+    background-color: aqua;
+    child-left: 20px;
+    child-top: 10px;
+    col-between: 100px;
+    height: auto;
+}
+label {
+    text-align: center;
+    border-width: 10px;
+    background-color: lightgray;
+    width:auto;
+    height:auto;
+    background-color: red;
+}
+label.char_name_label {
+    background-color: white;
+}
+label.char_main_class_label {
+    background-color: white;
+}
+.char_name_textbox {
+    min-width: 100px;
+    height: 30px;
+}
