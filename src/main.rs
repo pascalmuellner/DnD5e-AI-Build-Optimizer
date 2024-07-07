@@ -338,7 +338,7 @@ fn main() {
                         .width(Pixels(100.0))
                         .class("multi_class_level_dropdown");
                     })
-                    .class("row_char_sub_class_level");
+                    .class("row_char_multi_class_level");
                 }
             });
         })
