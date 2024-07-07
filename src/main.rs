@@ -177,7 +177,7 @@ fn main() {
     // println!("{:#?}", character);
 
     let _ = Application::new(|cx| {
-        cx.emit(EnvironmentEvent::SetLocale(langid!("de")));
+        // cx.emit(EnvironmentEvent::SetLocale(langid!("en-US")));
 
         cx.add_stylesheet(include_style!("src/styles.css"))
             .expect("Failed to load the stylesheet!");
