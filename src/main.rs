@@ -11,6 +11,7 @@ use armor::*;
 use class::*;
 use item::ItemList;
 use item::*;
+use rfd::FileDialog;
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 use subclass::*;
@@ -154,7 +155,20 @@ impl Model for AppData {
                 }
             }
             AppEvent::LoadCharacter => {
-                todo!()
+                let path = std::env::current_dir().unwrap();
+                let files = FileDialog::new()
+                    .add_filter("json", &["json"])
+                    .set_directory(&path)
+                    .pick_file();
+
+                if files != None {
+                    self.character = Some(Unit::new(files.unwrap()));
+                    self.character_name = self.character.clone().unwrap().character_name;
+                    self.char_stats = self.character.clone().unwrap().stats;
+                    self.main_class = Some(self.character.clone().unwrap().starting_class.unwrap());
+                    self.selected_main_class_level = (self.character.clone().unwrap().starting_class.unwrap().class_level -1) as usize;
+                    println!("Loaded character: {:#?}", self.character);
+                }
             }
         });
     }
@@ -351,8 +365,12 @@ fn main() {
             });
             Button::new(cx, |cx| Label::new(cx, Localized::new("create_character")))
                 .on_press(|cx| cx.emit(AppEvent::CreateCharacter));
-            Button::new(cx, |cx| Label::new(cx, Localized::new("save_character")))
-                .on_press(|cx| cx.emit(AppEvent::SaveCharacter));
+            HStack::new(cx, |cx| {
+                Button::new(cx, |cx| Label::new(cx, Localized::new("save_character")))
+                    .on_press(|cx| cx.emit(AppEvent::SaveCharacter));
+                Button::new(cx, |cx| Label::new(cx, Localized::new("load_character")))
+                .on_press(|cx| cx.emit(AppEvent::LoadCharacter));
+            });
         })
         .class("outer_stack");
     })

@@ -1,13 +1,13 @@
 use num::Integer;
 use rand::Rng;
-use vizia::prelude::*;
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 use std::{fs::File, io::BufReader, io::BufWriter, io::Write};
+use vizia::prelude::*;
 
-use crate::equipment::*;
 use crate::armor::*;
 use crate::class::*;
-
+use crate::equipment::*;
 
 #[derive(Lens, Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct Unit {
@@ -25,7 +25,13 @@ pub struct Unit {
 }
 
 impl Unit {
-    pub fn create_player_character(name: String, class: Class, stats: StatBlock, hitpointstype: HitpointsType, equip: Option<Equipment>) -> Self {
+    pub fn create_player_character(
+        name: String,
+        class: Class,
+        stats: StatBlock,
+        hitpointstype: HitpointsType,
+        equip: Option<Equipment>,
+    ) -> Self {
         let hp: i32;
         if hitpointstype == HitpointsType::Random {
             hp = get_random_dice_value(class.hit_die);
@@ -44,11 +50,11 @@ impl Unit {
             additional_classes: Vec::new(),
             action_count: 1,
             stats,
-            equipment: equip
+            equipment: equip,
         };
         return character;
     }
-    pub fn create_goblin() -> Unit{
+    pub fn create_goblin() -> Unit {
         let file = File::open("src/EnemyUnits/goblin.json").expect("Unable to open file");
         let reader = BufReader::new(file);
         let goblin_gear: Equipment = serde_json::from_reader(reader).expect("could not read");
@@ -94,22 +100,21 @@ impl Unit {
             self.hitpoints += get_average_dice_value(class.hit_die);
         }
     }
-    pub fn melee_attack(&mut self, target: &mut Unit){
+    pub fn melee_attack(&mut self, target: &mut Unit) {
         if self.action_count > 0 {
             self.action_count -= 1;
             let hit_roll_value = get_random_dice_value(DieType::D20);
-            if hit_roll_value + self.stats.get_dexterity_modifier() >= target.calculate_armor_class() {
+            if hit_roll_value + self.stats.get_dexterity_modifier()
+                >= target.calculate_armor_class()
+            {
                 let damage_value = get_random_dice_value(DieType::D6);
                 println!("Attack hit!");
                 println!("Damage: {}", damage_value);
                 target.hitpoints -= damage_value;
-            }
-            else {
+            } else {
                 println!("Attack missed!");
             }
-
-        }
-        else {
+        } else {
             print!("No action left!");
         }
     }
@@ -120,32 +125,56 @@ impl Unit {
         let mut armor_class = 0;
         let dex_modifier = self.stats.get_dexterity_modifier();
         if self.equipment.as_ref().unwrap().armor.chest != None {
-            let armor_type = self.equipment.as_ref().unwrap().armor.chest.as_ref().unwrap().armor_type.as_ref().unwrap();
+            let armor_type = self
+                .equipment
+                .as_ref()
+                .unwrap()
+                .armor
+                .chest
+                .as_ref()
+                .unwrap()
+                .armor_type
+                .as_ref()
+                .unwrap();
             if armor_type == &ArmorType::Light {
                 armor_class = dex_modifier;
-            }
-            else if armor_type == &ArmorType::Medium {
+            } else if armor_type == &ArmorType::Medium {
                 if dex_modifier > 2 {
                     armor_class = 2;
-                }
-                else {
+                } else {
                     armor_class = dex_modifier;
                 }
             }
-            armor_class += self.equipment.as_ref().unwrap().armor.chest.as_ref().unwrap().armor_class;
+            armor_class += self
+                .equipment
+                .as_ref()
+                .unwrap()
+                .armor
+                .chest
+                .as_ref()
+                .unwrap()
+                .armor_class;
         }
         if self.equipment.as_ref().unwrap().armor.shield != None {
-            armor_class += self.equipment.as_ref().unwrap().armor.shield.as_ref().unwrap().armor_class;
+            armor_class += self
+                .equipment
+                .as_ref()
+                .unwrap()
+                .armor
+                .shield
+                .as_ref()
+                .unwrap()
+                .armor_class;
         }
         return armor_class;
     }
 
-    /// Writes the weapon list to a json.
+    /// Writes the unit to a json.
     ///
     /// # Errors
     ///
     /// This function will return an error if .
-    pub fn write(&self, file_path: &str) -> std::io::Result<()>{
+    pub fn write(&self, file_path: &str) -> std::io::Result<()> {
         let file = File::create(file_path)?;
         let mut writer = BufWriter::new(file);
         serde_json::to_writer(&mut writer, &self)?;
@@ -153,10 +182,33 @@ impl Unit {
         Ok(())
     }
 
+    /// Reads the unit from a json.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if .
+    pub fn new(file_path: PathBuf) -> Self {
+        let file = File::open(file_path).expect("Unable to open file");
+        let reader = BufReader::new(file);
+        let unit: Unit = serde_json::from_reader(reader).expect("could not read");
+        Self {
+            unit_type: unit.unit_type,
+            character_name: unit.character_name,
+            character_level: unit.character_level,
+            hitpoints: unit.hitpoints,
+            hitpoints_type: unit.hitpoints_type,
+            movement_speed: unit.movement_speed,
+            starting_class: unit.starting_class,
+            additional_classes: unit.additional_classes,
+            action_count: unit.action_count,
+            stats: unit.stats,
+            equipment: unit.equipment,
+        }
+    }
+
     fn add_additional_class(&mut self, class: Class) {
         self.additional_classes.push(class);
     }
-    
 }
 
 #[derive(Clone, Serialize, Deserialize, Lens, Copy, Debug, PartialEq, Eq)]
@@ -169,8 +221,15 @@ pub struct StatBlock {
     pub charisma: i32,
 }
 impl StatBlock {
-    pub fn new(strength: i32, dexterity: i32, constitution: i32, intelligence: i32, wisdom: i32, charisma: i32) -> Self {
-        StatBlock{
+    pub fn new(
+        strength: i32,
+        dexterity: i32,
+        constitution: i32,
+        intelligence: i32,
+        wisdom: i32,
+        charisma: i32,
+    ) -> Self {
+        StatBlock {
             intelligence,
             constitution,
             strength,
@@ -214,7 +273,7 @@ pub enum EnemyType {
     Insect,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum HumanoidType{
+pub enum HumanoidType {
     Goblin,
 }
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
