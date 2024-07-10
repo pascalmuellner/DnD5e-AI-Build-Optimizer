@@ -1,20 +1,15 @@
-use std::fmt;
-use std::fmt::Display;
 use num::Integer;
 use rand::Rng;
 use vizia::prelude::*;
 use serde::{Deserialize, Serialize};
+use std::{fs::File, io::BufReader, io::BufWriter, io::Write};
 
 use crate::equipment::*;
 use crate::armor::*;
-use crate::weapon::*;
-use crate::item::*;
+use crate::class::*;
 
-use std::fs::File;
-use std::io::BufReader;
-use std::vec;
 
-#[derive(Lens, Debug, PartialEq, Eq, Clone)]
+#[derive(Lens, Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct Unit {
     pub unit_type: UnitType,
     pub character_name: String,
@@ -26,11 +21,11 @@ pub struct Unit {
     pub additional_classes: Vec<Class>,
     pub action_count: i32,
     pub stats: StatBlock,
-    pub equipment: Equipment,
+    pub equipment: Option<Equipment>,
 }
 
 impl Unit {
-    pub fn create_player_character(name: String, class: Class, stats: StatBlock, hitpointstype: HitpointsType, equip: Equipment) -> Self {
+    pub fn create_player_character(name: String, class: Class, stats: StatBlock, hitpointstype: HitpointsType, equip: Option<Equipment>) -> Self {
         let hp: i32;
         if hitpointstype == HitpointsType::Random {
             hp = get_random_dice_value(class.hit_die);
@@ -54,7 +49,7 @@ impl Unit {
         return character;
     }
     pub fn create_goblin() -> Unit{
-        let file = File::open("src/Items/goblin.json").expect("Unable to open file");
+        let file = File::open("src/EnemyUnits/goblin.json").expect("Unable to open file");
         let reader = BufReader::new(file);
         let goblin_gear: Equipment = serde_json::from_reader(reader).expect("could not read");
         Unit {
@@ -68,14 +63,15 @@ impl Unit {
             additional_classes: Vec::new(),
             action_count: 1,
             stats: StatBlock::new(8, 14, 10, 10, 8, 8),
-            equipment: goblin_gear
+            equipment: Some(goblin_gear),
         }
     }
     /// level up a class for the character
     pub fn level_up(&mut self, class: Class) {
         // check if the class is the starting class
-        if self.starting_class.unwrap().class_name == class.class_name {
-            self.starting_class.unwrap().level_up();
+        let starting_class = self.starting_class.clone();
+        if starting_class.unwrap().class_name == class.class_name {
+            self.starting_class.as_mut().unwrap().level_up();
         }
         // check if the class is a multi class and get the index if it is
         else if let Some(index) = self
@@ -87,7 +83,7 @@ impl Unit {
         }
         // add the class as multi class
         else {
-            self.add_additional_class(class);
+            self.add_additional_class(class.clone());
         }
 
         // also update character level and hit points
@@ -123,8 +119,8 @@ impl Unit {
     pub fn calculate_armor_class(&self) -> i32 {
         let mut armor_class = 0;
         let dex_modifier = self.stats.get_dexterity_modifier();
-        if self.equipment.armor.chest != None {
-            let armor_type = self.equipment.armor.chest.as_ref().unwrap().armor_type.as_ref().unwrap();
+        if self.equipment.as_ref().unwrap().armor.chest != None {
+            let armor_type = self.equipment.as_ref().unwrap().armor.chest.as_ref().unwrap().armor_type.as_ref().unwrap();
             if armor_type == &ArmorType::Light {
                 armor_class = dex_modifier;
             }
@@ -136,136 +132,34 @@ impl Unit {
                     armor_class = dex_modifier;
                 }
             }
-            armor_class += self.equipment.armor.chest.as_ref().unwrap().armor_class;
+            armor_class += self.equipment.as_ref().unwrap().armor.chest.as_ref().unwrap().armor_class;
         }
-        if self.equipment.armor.shield != None {
-            armor_class += self.equipment.armor.shield.as_ref().unwrap().armor_class;
+        if self.equipment.as_ref().unwrap().armor.shield != None {
+            armor_class += self.equipment.as_ref().unwrap().armor.shield.as_ref().unwrap().armor_class;
         }
         return armor_class;
     }
+
+    /// Writes the weapon list to a json.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if .
+    pub fn write(&self, file_path: &str) -> std::io::Result<()>{
+        let file = File::create(file_path)?;
+        let mut writer = BufWriter::new(file);
+        serde_json::to_writer(&mut writer, &self)?;
+        writer.flush()?;
+        Ok(())
+    }
+
     fn add_additional_class(&mut self, class: Class) {
         self.additional_classes.push(class);
     }
+    
 }
 
-#[derive(Lens, Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Class {
-    pub class_name: ClassName,
-    pub hit_die: DieType,
-    pub class_level: i32,
-}
-
-impl Class {
-    pub fn level_up(&mut self) {
-        self.class_level += 1;
-    }
-    pub fn create_artificer() -> Self {
-        let class = Class {
-            class_name: ClassName::Artificer,
-            hit_die: DieType::D8,
-            class_level: 1,
-        };
-        return class;
-    }
-    pub fn create_barbarian() -> Self {
-        let class = Class {
-            class_name: ClassName::Barbarian,
-            hit_die: DieType::D12,
-            class_level: 1,
-        };
-        return class;
-    }
-    pub fn create_bard() -> Self {
-        let class = Class {
-            class_name: ClassName::Bard,
-            hit_die: DieType::D8,
-            class_level: 1,
-        };
-        return class;
-    }
-    pub fn create_cleric() -> Self {
-        let class = Class {
-            class_name: ClassName::Cleric,
-            hit_die: DieType::D8,
-            class_level: 1,
-        };
-        return class;
-    }
-    pub fn create_druid() -> Self {
-        let class = Class {
-            class_name: ClassName::Druid,
-            hit_die: DieType::D8,
-            class_level: 1,
-        };
-        return class;
-    }
-    pub fn create_fighter() -> Self {
-        let class = Class {
-            class_name: ClassName::Fighter,
-            hit_die: DieType::D10,
-            class_level: 1,
-        };
-        return class;
-    }
-    pub fn create_monk() -> Self {
-        let class = Class {
-            class_name: ClassName::Monk,
-            hit_die: DieType::D8,
-            class_level: 1,
-        };
-        return class;
-    }
-    pub fn create_paladin() -> Self {
-        let class = Class {
-            class_name: ClassName::Paladin,
-            hit_die: DieType::D8,
-            class_level: 1,
-        };
-        return class;
-    }
-    pub fn create_ranger() -> Self {
-        let class = Class {
-            class_name: ClassName::Ranger,
-            hit_die: DieType::D8,
-            class_level: 1,
-        };
-        return class;
-    }
-    pub fn create_rogue() -> Self {
-        let class = Class {
-            class_name: ClassName::Rogue,
-            hit_die: DieType::D8,
-            class_level: 1,
-        };
-        return class;
-    }
-    pub fn create_sorcerer() -> Self {
-        let class = Class {
-            class_name: ClassName::Sorcerer,
-            hit_die: DieType::D6,
-            class_level: 1,
-        };
-        return class;
-    }
-    pub fn create_warlock() -> Self {
-        let class = Class {
-            class_name: ClassName::Warlock,
-            hit_die: DieType::D8,
-            class_level: 1,
-        };
-        return class;
-    }
-    pub fn create_wizard() -> Self {
-        let class = Class {
-            class_name: ClassName::Wizard,
-            hit_die: DieType::D6,
-            class_level: 1,
-        };
-        return class;
-    }
-
-}
-#[derive(Clone, Lens, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Serialize, Deserialize, Lens, Copy, Debug, PartialEq, Eq)]
 pub struct StatBlock {
     pub intelligence: i32,
     pub constitution: i32,
@@ -304,40 +198,12 @@ impl StatBlock {
         (self.charisma - 10) % 2
     }
 }
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
 pub enum HitpointsType {
     Random,
     Average,
 }
-#[derive(Data, Clone, Copy, Debug, PartialEq, Eq)]
-pub enum ClassName {
-    Artificer,
-    Barbarian,
-    Bard,
-    Cleric,
-    Druid,
-    Fighter,
-    Monk,
-    Paladin,
-    Ranger,
-    Rogue,
-    Sorcerer,
-    Warlock,
-    Wizard,
-}
-impl ClassName {
-    pub fn get_all_class_names() -> Vec<ClassName> {
-        vec![ClassName::Artificer, ClassName::Barbarian, ClassName::Bard, ClassName::Cleric, ClassName::Druid, ClassName::Fighter, ClassName::Monk, ClassName::Paladin, ClassName::Ranger, ClassName::Rogue, ClassName::Sorcerer, ClassName::Warlock, ClassName::Wizard]
-    }
-}
-impl Display for ClassName {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
-        // or, alternatively:
-        // fmt::Debug::fmt(self, f)
-    }
-}
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
 pub enum UnitType {
     Player,
     Enemy,

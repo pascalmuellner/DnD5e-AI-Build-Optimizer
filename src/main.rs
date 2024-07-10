@@ -1,32 +1,31 @@
 mod armor;
+mod class;
 mod combat;
 mod equipment;
 mod item;
+mod subclass;
 mod unit;
 mod weapon;
 
-use app_data_derived_lenses::char_stats;
 use armor::*;
-use combat::Combat;
-use combo_box_derived_lenses::list_lens;
-use equipment::*;
+use class::*;
 use item::ItemList;
 use item::*;
-use unit::{Class, ClassName, DieType, StatBlock, Unit};
-use vizia::prelude::*;
-use vizia::vg::font_style::Width;
-use weapon::*;
-
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
+use subclass::*;
+use unit::*;
+use vizia::prelude::*;
+use weapon::*;
 
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::BufReader;
+use std::path::Path;
+use std::str::FromStr;
 
 #[derive(Lens)]
 struct AppData {
     character_name: String,
-    items: Items,
     character: Option<Unit>,
     char_stats: StatBlock,
     main_class: Option<Class>,
@@ -42,13 +41,6 @@ struct AppData {
     multiclass_enabled: bool,
 }
 
-#[derive(Lens)]
-struct Items {
-    pub weapon_list: WeaponList,
-    pub armor_list: ArmorList,
-    pub item_list: ItemList,
-}
-
 pub enum AppEvent {
     CharacterNameInput(String),
     SelectMainClass(usize),
@@ -62,6 +54,9 @@ pub enum AppEvent {
     SetStatsCha(i32),
     SetStatsCon(i32),
     SetStatsDex(i32),
+    CreateCharacter,
+    SaveCharacter,
+    LoadCharacter,
 }
 
 impl Model for AppData {
@@ -120,47 +115,52 @@ impl Model for AppData {
             AppEvent::SetStatsInt(num) => {
                 self.char_stats.intelligence = *num;
             }
-            AppEvent::SetStatsStr(_) => todo!(),
-            AppEvent::SetStatsWis(_) => todo!(),
-            AppEvent::SetStatsCha(_) => todo!(),
-            AppEvent::SetStatsCon(_) => todo!(),
-            AppEvent::SetStatsDex(_) => todo!(),
+            AppEvent::SetStatsStr(num) => {
+                self.char_stats.strength = *num;
+            }
+            AppEvent::SetStatsWis(num) => {
+                self.char_stats.wisdom = *num;
+            }
+            AppEvent::SetStatsCha(num) => {
+                self.char_stats.charisma = *num;
+            }
+            AppEvent::SetStatsCon(num) => {
+                self.char_stats.constitution = *num;
+            }
+            AppEvent::SetStatsDex(num) => {
+                self.char_stats.dexterity = *num;
+            }
+            AppEvent::CreateCharacter => {
+                self.character = Some(Unit::create_player_character(
+                    self.character_name.clone(),
+                    self.main_class.clone().unwrap(),
+                    self.char_stats,
+                    HitpointsType::Random,
+                    None,
+                ));
+                println!("Created character: {:#?}", self.character);
+            }
+            AppEvent::SaveCharacter => {
+                let mut file_name = "PlayerUnits/".to_owned();
+                if !Path::new(&file_name).exists() {
+                    let folder_creation_result = fs::create_dir(&file_name);
+                    println!("Folder creation: {:#?}", folder_creation_result);
+                }
+                file_name.push_str(&self.character_name);
+                file_name.push_str(".json");
+                if self.character.as_ref() != None {
+                    let result = self.character.as_ref().unwrap().write(file_name.as_str());
+                    println!("{:#?}", result);
+                }
+            }
+            AppEvent::LoadCharacter => {
+                todo!()
+            }
         });
     }
 }
 
 fn main() {
-    // let rogue = Class::create_rogue();
-    // let stats = StatBlock::new(8, 14, 14, 16, 10, 14);
-
-    // let mut weapon_list = WeaponList::new("src/Items/weapons.json");
-    // let armor_list = ArmorList::new("src/Items/armors.json");
-    // let item_list = ItemList::new("src/Items/items.json");
-
-    // let weapon = Weapon::new(2, "Greatclub".to_string(), DieType::D4, 1, DamageType::Bludgeoning, vec!{Properties::TwoHanded});
-    // weapon_list.add(weapon);
-    // let result = weapon_list.write("src/Items/weapons.json");
-
-    // println!("weapons: {:#?}", weapon_list);
-
-    // println!("weapon_list: {:#?}\r\narmor_list: {:#?}\r\nitem_list: {:#?}\r\n", weapon_list, armor_list, item_list);
-
-    // println!("armor: {:#?}", armor_list.get_armor(1));
-
-    // let dagger = &weapon_list.weapons[0];
-    // let chest = armor_list.armors.first();
-    // let shield = armor_list.armors.last();
-    // let armor = ArmorSlots::new(chest.cloned(), None, None, None, shield.cloned());
-    // let equip = Equipment{
-    //     armor,
-    //     melee_weapon: Some(dagger.clone()),
-    //     ranged_weapon: None,
-    // };
-    // let character = unit::Unit::create_player_character("Kuro".to_string(), rogue, stats, unit::HitpointsType::Average, equip);
-    // println!("{:#?}", character);
-    // let goblin = unit::Unit::create_goblin();
-    // println!("{:#?}", goblin);
-
     // let mut combat = Combat::new(&vec![character], &vec![goblin]);
 
     // combat.start();
@@ -200,11 +200,6 @@ fn main() {
 
         AppData {
             character_name: String::new(),
-            items: Items {
-                weapon_list: WeaponList::new("src/Items/weapons.json"),
-                armor_list: ArmorList::new("src/Items/armors.json"),
-                item_list: ItemList::new("src/Items/items.json"),
-            },
             character: None,
             char_stats: StatBlock {
                 intelligence: 10,
@@ -239,7 +234,7 @@ fn main() {
                 Label::new(cx, Localized::new("main_class")).class("char_main_class_label");
                 ComboBox::new(cx, AppData::main_class_vec, AppData::selected_main_class)
                     .on_select(|cx, index| cx.emit(AppEvent::SelectMainClass(index)));
-                    // .width(Pixels(100.0));
+                // .width(Pixels(100.0));
             })
             .class("row");
             HStack::new(cx, |cx| {
@@ -305,7 +300,12 @@ fn main() {
             HStack::new(cx, |cx| {
                 Label::new(cx, Localized::new("main_class_level"))
                     .class("char_main_class_level_label");
-                PickList::new(cx, AppData::main_class_level, AppData::selected_main_class_level, true)
+                PickList::new(
+                    cx,
+                    AppData::main_class_level,
+                    AppData::selected_main_class_level,
+                    true,
+                )
                 .on_select(|cx, index| cx.emit(AppEvent::SetMainClassLevel(index)))
                 .width(Pixels(100.0))
                 .class("main_class_level_dropdown");
@@ -323,7 +323,8 @@ fn main() {
             Binding::new(cx, AppData::multiclass_enabled, |cx, show| {
                 if show.get(cx) {
                     HStack::new(cx, |cx| {
-                        Label::new(cx, Localized::new("multiclass")).class("char_multi_class_label");
+                        Label::new(cx, Localized::new("multiclass"))
+                            .class("char_multi_class_label");
                         ComboBox::new(
                             cx,
                             AppData::multiclass_class_vec,
@@ -335,7 +336,12 @@ fn main() {
                     HStack::new(cx, |cx| {
                         Label::new(cx, Localized::new("multi_class_level"))
                             .class("char_multi_class_level_label");
-                        PickList::new(cx, AppData::multi_class_level, AppData::selected_multi_class_level, true)
+                        PickList::new(
+                            cx,
+                            AppData::multi_class_level,
+                            AppData::selected_multi_class_level,
+                            true,
+                        )
                         .on_select(|cx, index| cx.emit(AppEvent::SetMultiClassLevel(index)))
                         .width(Pixels(100.0))
                         .class("multi_class_level_dropdown");
@@ -343,6 +349,10 @@ fn main() {
                     .class("row");
                 }
             });
+            Button::new(cx, |cx| Label::new(cx, Localized::new("create_character")))
+                .on_press(|cx| cx.emit(AppEvent::CreateCharacter));
+            Button::new(cx, |cx| Label::new(cx, Localized::new("save_character")))
+                .on_press(|cx| cx.emit(AppEvent::SaveCharacter));
         })
         .class("outer_stack");
     })

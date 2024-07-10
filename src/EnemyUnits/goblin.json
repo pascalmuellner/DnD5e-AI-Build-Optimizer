@@ -16,7 +16,7 @@
             "armor_type": "Shield"
         }
     },
-    "melee_weapon": {
+    "melee_weapon_mainhand": {
         "item_id": 1,
         "item_name": "Dagger",
         "damage_die": "D4",
@@ -33,5 +33,6 @@
             }
         ]
     },
+    "melee_weapon_offhand": null,
     "ranged_weapon": null
 }
