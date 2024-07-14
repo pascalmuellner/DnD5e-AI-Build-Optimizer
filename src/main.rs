@@ -40,6 +40,7 @@ struct AppData {
     selected_main_class: usize,
     selected_multi_class: usize,
     multiclass_enabled: bool,
+    show_stats_popup: bool,
 }
 
 pub enum AppEvent {
@@ -58,6 +59,8 @@ pub enum AppEvent {
     CreateCharacter,
     SaveCharacter,
     LoadCharacter,
+    ShowStatsPopup,
+    StatsPopupClosed,
 }
 
 impl Model for AppData {
@@ -163,13 +166,27 @@ impl Model for AppData {
 
                 if files != None {
                     self.character = Some(Unit::new(files.unwrap()));
+
+                    
+
+                    // self.selected_main_class = self.main_class_vec.iter().position(|&r| r == self.character.unwrap().starting_class.unwrap()).unwrap();
                     self.character_name = self.character.clone().unwrap().character_name;
                     self.char_stats = self.character.clone().unwrap().stats;
                     self.main_class = Some(self.character.clone().unwrap().starting_class.unwrap());
-                    self.selected_main_class_level = (self.character.clone().unwrap().starting_class.unwrap().class_level -1) as usize;
+                    self.selected_main_class = self.main_class_vec.iter().position(|&r| r == self.main_class.clone().unwrap().class_name).unwrap();
+                    self.selected_main_class_level = (self
+                        .character
+                        .clone()
+                        .unwrap()
+                        .starting_class
+                        .unwrap()
+                        .class_level
+                        - 1) as usize;
                     println!("Loaded character: {:#?}", self.character);
                 }
             }
+            AppEvent::ShowStatsPopup => self.show_stats_popup = true,
+            AppEvent::StatsPopupClosed => self.show_stats_popup = false,
         });
     }
 }
@@ -234,8 +251,86 @@ fn main() {
             multiclass_class_vec: ClassName::get_all_class_names(),
             selected_main_class_level: 0,
             selected_multi_class_level: 0,
+            show_stats_popup: false,
         }
         .build(cx);
+
+        Binding::new(cx, AppData::show_stats_popup, |cx, show_subwindow| {
+            if show_subwindow.get(cx) {
+                Window::popup(cx, false, |cx| {
+                    // have a horizontal stack of 6 vertical stacks, each vertical stack is one stat
+                    HStack::new(cx, |cx| {
+                        VStack::new(cx, |cx| {
+                            Label::new(cx, Localized::new("int")).class("char_stats_int_label");
+                            Textbox::new(cx, AppData::char_stats.then(StatBlock::intelligence))
+                                .validate(|val| *val >= 8 && *val <= 18)
+                                .on_submit(|cx, val, _| {
+                                    cx.emit(AppEvent::SetStatsInt(val));
+                                })
+                                .class("stats_int");
+                        })
+                        .class("row");
+                        VStack::new(cx, |cx| {
+                            Label::new(cx, Localized::new("str")).class("char_stats_int_label");
+                            Textbox::new(cx, AppData::char_stats.then(StatBlock::strength))
+                                .validate(|val| *val >= 8 && *val <= 18)
+                                .on_submit(|cx, val, _| {
+                                    cx.emit(AppEvent::SetStatsStr(val));
+                                })
+                                .class("stats_str");
+                        })
+                        .class("row");
+                        VStack::new(cx, |cx| {
+                            Label::new(cx, Localized::new("wis")).class("char_stats_wis_label");
+                            Textbox::new(cx, AppData::char_stats.then(StatBlock::wisdom))
+                                .validate(|val| *val >= 8 && *val <= 18)
+                                .on_submit(|cx, val, _| {
+                                    cx.emit(AppEvent::SetStatsWis(val));
+                                })
+                                .class("stats_wis");
+                        })
+                        .class("row");
+                        VStack::new(cx, |cx| {
+                            Label::new(cx, Localized::new("cha")).class("char_stats_cha_label");
+                            Textbox::new(cx, AppData::char_stats.then(StatBlock::charisma))
+                                .validate(|val| *val >= 8 && *val <= 18)
+                                .on_submit(|cx, val, _| {
+                                    cx.emit(AppEvent::SetStatsCha(val));
+                                })
+                                .class("stats_cha");
+                        })
+                        .class("row");
+                        VStack::new(cx, |cx| {
+                            Label::new(cx, Localized::new("con")).class("char_stats_con_label");
+                            Textbox::new(cx, AppData::char_stats.then(StatBlock::constitution))
+                                .validate(|val| *val >= 8 && *val <= 18)
+                                .on_submit(|cx, val, _| {
+                                    cx.emit(AppEvent::SetStatsCon(val));
+                                })
+                                .class("stats_con");
+                        })
+                        .class("row");
+                        VStack::new(cx, |cx| {
+                            Label::new(cx, Localized::new("dex")).class("char_stats_dex_label");
+                            Textbox::new(cx, AppData::char_stats.then(StatBlock::dexterity))
+                                .validate(|val| *val >= 8 && *val <= 18)
+                                .on_submit(|cx, val, _| {
+                                    cx.emit(AppEvent::SetStatsDex(val));
+                                })
+                                .class("stats_dex");
+                        })
+                        .class("row");
+                    });
+                    
+                })
+                .on_close(|cx| {
+                    cx.emit(AppEvent::StatsPopupClosed);
+                })
+                .title("Character Stats")
+                .inner_size((500, 10));
+            };
+        });
+
         VStack::new(cx, |cx| {
             HStack::new(cx, |cx| {
                 Label::new(cx, Localized::new("char_name")).class("char_name_label");
@@ -251,66 +346,7 @@ fn main() {
                 // .width(Pixels(100.0));
             })
             .class("row");
-            HStack::new(cx, |cx| {
-                Label::new(cx, Localized::new("int")).class("char_stats_int_label");
-                Textbox::new(cx, AppData::char_stats.then(StatBlock::intelligence))
-                    .validate(|val| *val >= 8 && *val <= 18)
-                    .on_submit(|cx, val, _| {
-                        cx.emit(AppEvent::SetStatsInt(val));
-                    })
-                    .class("stats_int");
-            })
-            .class("row");
-            HStack::new(cx, |cx| {
-                Label::new(cx, Localized::new("str")).class("char_stats_int_label");
-                Textbox::new(cx, AppData::char_stats.then(StatBlock::strength))
-                    .validate(|val| *val >= 8 && *val <= 18)
-                    .on_submit(|cx, val, _| {
-                        cx.emit(AppEvent::SetStatsStr(val));
-                    })
-                    .class("stats_str");
-            })
-            .class("row");
-            HStack::new(cx, |cx| {
-                Label::new(cx, Localized::new("wis")).class("char_stats_wis_label");
-                Textbox::new(cx, AppData::char_stats.then(StatBlock::wisdom))
-                    .validate(|val| *val >= 8 && *val <= 18)
-                    .on_submit(|cx, val, _| {
-                        cx.emit(AppEvent::SetStatsWis(val));
-                    })
-                    .class("stats_wis");
-            })
-            .class("row");
-            HStack::new(cx, |cx| {
-                Label::new(cx, Localized::new("cha")).class("char_stats_cha_label");
-                Textbox::new(cx, AppData::char_stats.then(StatBlock::charisma))
-                    .validate(|val| *val >= 8 && *val <= 18)
-                    .on_submit(|cx, val, _| {
-                        cx.emit(AppEvent::SetStatsCha(val));
-                    })
-                    .class("stats_cha");
-            })
-            .class("row");
-            HStack::new(cx, |cx| {
-                Label::new(cx, Localized::new("con")).class("char_stats_con_label");
-                Textbox::new(cx, AppData::char_stats.then(StatBlock::constitution))
-                    .validate(|val| *val >= 8 && *val <= 18)
-                    .on_submit(|cx, val, _| {
-                        cx.emit(AppEvent::SetStatsCon(val));
-                    })
-                    .class("stats_con");
-            })
-            .class("row");
-            HStack::new(cx, |cx| {
-                Label::new(cx, Localized::new("dex")).class("char_stats_dex_label");
-                Textbox::new(cx, AppData::char_stats.then(StatBlock::dexterity))
-                    .validate(|val| *val >= 8 && *val <= 18)
-                    .on_submit(|cx, val, _| {
-                        cx.emit(AppEvent::SetStatsDex(val));
-                    })
-                    .class("stats_dex");
-            })
-            .class("row");
+
             HStack::new(cx, |cx| {
                 Label::new(cx, Localized::new("main_class_level"))
                     .class("char_main_class_level_label");
@@ -369,7 +405,9 @@ fn main() {
                 Button::new(cx, |cx| Label::new(cx, Localized::new("save_character")))
                     .on_press(|cx| cx.emit(AppEvent::SaveCharacter));
                 Button::new(cx, |cx| Label::new(cx, Localized::new("load_character")))
-                .on_press(|cx| cx.emit(AppEvent::LoadCharacter));
+                    .on_press(|cx| cx.emit(AppEvent::LoadCharacter));
+                Button::new(cx, |cx| Label::new(cx, Localized::new("open_stats_popup")))
+                    .on_press(|cx| cx.emit(AppEvent::ShowStatsPopup));
             });
         })
         .class("outer_stack");
