@@ -283,6 +283,7 @@ fn main() {
                             Label::new(cx, Localized::new("int")).class("char_stats_int_label");
                             Textbox::new(cx, AppData::char_stats.then(StatBlock::intelligence))
                                 .validate(|val| *val >= 8 && *val <= 18)
+                                .on_focus_out(|cx| cx.emit(TextEvent::Submit(false)))
                                 .on_submit(|cx, val, _| {
                                     cx.emit(AppEvent::SetStatsInt(val));
                                 })
@@ -293,6 +294,7 @@ fn main() {
                             Label::new(cx, Localized::new("str")).class("char_stats_int_label");
                             Textbox::new(cx, AppData::char_stats.then(StatBlock::strength))
                                 .validate(|val| *val >= 8 && *val <= 18)
+                                .on_focus_out(|cx| cx.emit(TextEvent::Submit(false)))
                                 .on_submit(|cx, val, _| {
                                     cx.emit(AppEvent::SetStatsStr(val));
                                 })
@@ -303,6 +305,7 @@ fn main() {
                             Label::new(cx, Localized::new("wis")).class("char_stats_wis_label");
                             Textbox::new(cx, AppData::char_stats.then(StatBlock::wisdom))
                                 .validate(|val| *val >= 8 && *val <= 18)
+                                .on_focus_out(|cx| cx.emit(TextEvent::Submit(false)))
                                 .on_submit(|cx, val, _| {
                                     cx.emit(AppEvent::SetStatsWis(val));
                                 })
@@ -313,6 +316,7 @@ fn main() {
                             Label::new(cx, Localized::new("cha")).class("char_stats_cha_label");
                             Textbox::new(cx, AppData::char_stats.then(StatBlock::charisma))
                                 .validate(|val| *val >= 8 && *val <= 18)
+                                .on_focus_out(|cx| cx.emit(TextEvent::Submit(false)))
                                 .on_submit(|cx, val, _| {
                                     cx.emit(AppEvent::SetStatsCha(val));
                                 })
@@ -323,6 +327,7 @@ fn main() {
                             Label::new(cx, Localized::new("con")).class("char_stats_con_label");
                             Textbox::new(cx, AppData::char_stats.then(StatBlock::constitution))
                                 .validate(|val| *val >= 8 && *val <= 18)
+                                .on_focus_out(|cx| cx.emit(TextEvent::Submit(false)))
                                 .on_submit(|cx, val, _| {
                                     cx.emit(AppEvent::SetStatsCon(val));
                                 })
@@ -333,6 +338,7 @@ fn main() {
                             Label::new(cx, Localized::new("dex")).class("char_stats_dex_label");
                             Textbox::new(cx, AppData::char_stats.then(StatBlock::dexterity))
                                 .validate(|val| *val >= 8 && *val <= 18)
+                                .on_focus_out(|cx| cx.emit(TextEvent::Submit(false)))
                                 .on_submit(|cx, val, _| {
                                     cx.emit(AppEvent::SetStatsDex(val));
                                 })
@@ -353,6 +359,7 @@ fn main() {
             HStack::new(cx, |cx| {
                 Label::new(cx, Localized::new("char_name")).class("char_name_label");
                 Textbox::new(cx, AppData::character_name)
+                    .on_focus_out(|cx| cx.emit(TextEvent::Submit(false)))
                     .on_submit(|cx, val, _| cx.emit(AppEvent::CharacterNameInput(val)))
                     .class("char_name_textbox");
             })
