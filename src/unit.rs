@@ -1,6 +1,7 @@
 use num::Integer;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
+use std::ops::Add;
 use std::path::PathBuf;
 use std::{fs::File, io::BufReader, io::BufWriter, io::Write};
 use vizia::prelude::*;
@@ -8,6 +9,8 @@ use vizia::prelude::*;
 use crate::armor::*;
 use crate::class::*;
 use crate::equipment::*;
+use crate::species::*;
+use crate::spells::*;
 
 #[derive(Lens, Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct Unit {
@@ -22,6 +25,9 @@ pub struct Unit {
     pub action_count: i32,
     pub stats: StatBlock,
     pub equipment: Option<Equipment>,
+    pub species: Option<Species>,
+    pub spell_list: Option<Vec<Spell>>,
+    pub spell_slots: Option<SpellSlots>,
 }
 
 impl Unit {
@@ -31,6 +37,9 @@ impl Unit {
         stats: StatBlock,
         hitpointstype: HitpointsType,
         equip: Option<Equipment>,
+        species: Option<Species>,
+        spell_list: Option<Vec<Spell>>,
+        spell_slots: Option<SpellSlots>,
     ) -> Self {
         let hp: i32;
         if hitpointstype == HitpointsType::Random {
@@ -51,7 +60,15 @@ impl Unit {
             action_count: 1,
             stats,
             equipment: equip,
+            species: species,
+            spell_list: spell_list,
+            spell_slots: spell_slots,
         };
+
+        if character.species != None {
+            // character.stats += species.stats_increase;
+        }
+
         return character;
     }
     pub fn create_goblin() -> Unit {
@@ -70,6 +87,9 @@ impl Unit {
             action_count: 1,
             stats: StatBlock::new(8, 14, 10, 10, 8, 8),
             equipment: Some(goblin_gear),
+            species: None,
+            spell_list: None,
+            spell_slots: None,
         }
     }
     /// level up a class for the character
@@ -203,6 +223,9 @@ impl Unit {
             action_count: unit.action_count,
             stats: unit.stats,
             equipment: unit.equipment,
+            species: unit.species,
+            spell_list: unit.spell_list,
+            spell_slots: unit.spell_slots,
         }
     }
 
@@ -211,7 +234,7 @@ impl Unit {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize, Lens, Copy, Debug, PartialEq, Eq)]
+#[derive(Data, Clone, Serialize, Deserialize, Lens, Copy, Debug, PartialEq, Eq)]
 pub struct StatBlock {
     pub intelligence: i32,
     pub constitution: i32,
@@ -257,6 +280,21 @@ impl StatBlock {
         (self.charisma - 10) % 2
     }
 }
+
+impl Add for StatBlock {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self {
+        Self {
+            intelligence: self.intelligence + rhs.intelligence,
+            constitution: self.constitution + rhs.constitution,
+            strength: self.strength + rhs.strength,
+            dexterity: self.dexterity + rhs.dexterity,
+            wisdom: self.wisdom + rhs.wisdom,
+            charisma: self.charisma + rhs.charisma,
+        }
+    }
+}
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
 pub enum HitpointsType {
     Random,
@@ -284,6 +322,19 @@ pub enum DieType {
     D10,
     D12,
     D20,
+}
+
+#[derive(Lens, Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
+pub struct SpellSlots {
+    spell_level_1: i32,
+    spell_level_2: i32,
+    spell_level_3: i32,
+    spell_level_4: i32,
+    spell_level_5: i32,
+    spell_level_6: i32,
+    spell_level_7: i32,
+    spell_level_8: i32,
+    spell_level_9: i32,
 }
 
 fn get_random_dice_value(die: DieType) -> i32 {

@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Result;
 use std::{fs::File, io::BufReader, io::BufWriter, io::Write};
 
-use crate::{unit::DieType};
+use crate::unit::DieType;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct Weapon {
@@ -16,8 +16,22 @@ pub struct Weapon {
 
 impl Weapon {
     /// Creates a new [`Weapon`].
-    pub fn new(item_id: i32, item_name: String, damage_die: DieType, damage_die_count: i32, damage_type: DamageType, properties: Vec<Properties>) -> Self {
-        Self { item_id, item_name, damage_die, damage_die_count, damage_type, properties }
+    pub fn new(
+        item_id: i32,
+        item_name: String,
+        damage_die: DieType,
+        damage_die_count: i32,
+        damage_type: DamageType,
+        properties: Vec<Properties>,
+    ) -> Self {
+        Self {
+            item_id,
+            item_name,
+            damage_die,
+            damage_die_count,
+            damage_type,
+            properties,
+        }
     }
 }
 
@@ -36,7 +50,9 @@ impl WeaponList {
         let file = File::open(file_path).expect("Unable to open file");
         let reader = BufReader::new(file);
         let weapon_list: Vec<Weapon> = serde_json::from_reader(reader).expect("could not read");
-        Self{weapons: weapon_list}
+        Self {
+            weapons: weapon_list,
+        }
     }
     /// Adds a new weapon to the weapon list
     pub fn add(&mut self, weapon: Weapon) {
@@ -56,7 +72,7 @@ impl WeaponList {
     /// # Errors
     ///
     /// This function will return an error if .
-    pub fn write(&self, file_path: &str) -> std::io::Result<()>{
+    pub fn write(&self, file_path: &str) -> std::io::Result<()> {
         let file = File::create(file_path)?;
         let mut writer = BufWriter::new(file);
         serde_json::to_writer(&mut writer, &self.weapons)?;
@@ -79,9 +95,7 @@ pub enum Properties {
     Versatile,
 }
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
-pub struct Ammunition {
-
-}
+pub struct Ammunition {}
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub enum DamageType {

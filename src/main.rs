@@ -3,6 +3,8 @@ mod class;
 mod combat;
 mod equipment;
 mod item;
+mod species;
+mod spells;
 mod subclass;
 mod unit;
 mod weapon;
@@ -14,6 +16,7 @@ use item::*;
 use rfd::FileDialog;
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
+use species::*;
 use subclass::*;
 use unit::*;
 use vizia::prelude::*;
@@ -21,6 +24,7 @@ use weapon::*;
 
 use std::fs::{self, File};
 use std::io::BufReader;
+use std::ops::Add;
 use std::path::Path;
 use std::str::FromStr;
 
@@ -41,6 +45,8 @@ struct AppData {
     selected_multi_class: usize,
     multiclass_enabled: bool,
     show_stats_popup: bool,
+    species_list: Vec<Species>,
+    selected_species: usize,
 }
 
 pub enum AppEvent {
@@ -61,6 +67,7 @@ pub enum AppEvent {
     LoadCharacter,
     ShowStatsPopup,
     StatsPopupClosed,
+    SetSpecies(usize),
 }
 
 impl Model for AppData {
@@ -135,14 +142,24 @@ impl Model for AppData {
                 self.char_stats.dexterity = *num;
             }
             AppEvent::CreateCharacter => {
+                let stats = self
+                    .char_stats
+                    .add(self.species_list[self.selected_species].stats_increase);
+                let species = self.species_list[self.selected_species].clone();
                 self.character = Some(Unit::create_player_character(
                     self.character_name.clone(),
                     self.main_class.clone().unwrap(),
-                    self.char_stats,
+                    stats,
                     HitpointsType::Random,
+                    None,
+                    Some(species),
+                    None,
                     None,
                 ));
                 println!("Created character: {:#?}", self.character);
+            }
+            AppEvent::SetSpecies(index) => {
+                self.selected_species = *index;
             }
             AppEvent::SaveCharacter => {
                 let mut file_name = "PlayerUnits/".to_owned();
@@ -166,14 +183,14 @@ impl Model for AppData {
 
                 if files != None {
                     self.character = Some(Unit::new(files.unwrap()));
-
-                    
-
-                    // self.selected_main_class = self.main_class_vec.iter().position(|&r| r == self.character.unwrap().starting_class.unwrap()).unwrap();
                     self.character_name = self.character.clone().unwrap().character_name;
                     self.char_stats = self.character.clone().unwrap().stats;
                     self.main_class = Some(self.character.clone().unwrap().starting_class.unwrap());
-                    self.selected_main_class = self.main_class_vec.iter().position(|&r| r == self.main_class.clone().unwrap().class_name).unwrap();
+                    self.selected_main_class = self
+                        .main_class_vec
+                        .iter()
+                        .position(|&r| r == self.main_class.clone().unwrap().class_name)
+                        .unwrap();
                     self.selected_main_class_level = (self
                         .character
                         .clone()
@@ -251,6 +268,8 @@ fn main() {
             multiclass_class_vec: ClassName::get_all_class_names(),
             selected_main_class_level: 0,
             selected_multi_class_level: 0,
+            species_list: SpeciesList::new("src/Data/species.json").species,
+            selected_species: 0,
             show_stats_popup: false,
         }
         .build(cx);
@@ -321,7 +340,6 @@ fn main() {
                         })
                         .class("row");
                     });
-                    
                 })
                 .on_close(|cx| {
                     cx.emit(AppEvent::StatsPopupClosed);
@@ -339,6 +357,12 @@ fn main() {
                     .class("char_name_textbox");
             })
             .class("row");
+            HStack::new(cx, |cx| {
+                Label::new(cx, Localized::new("select_species")).class("char_select_species_label");
+                ComboBox::new(cx, AppData::species_list, AppData::selected_species)
+                    .on_select(|cx, index| cx.emit(AppEvent::SetSpecies(index)));
+            });
+
             HStack::new(cx, |cx| {
                 Label::new(cx, Localized::new("main_class")).class("char_main_class_label");
                 ComboBox::new(cx, AppData::main_class_vec, AppData::selected_main_class)
