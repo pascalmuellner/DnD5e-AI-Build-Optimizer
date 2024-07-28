@@ -1,7 +1,7 @@
 [
     {
-        "species_id": 1,
-        "species_name": "Human",
+        "id": 1,
+        "name": "Human",
         "stats_increase": {
             "intelligence": 1,
             "constitution": 1,
@@ -12,8 +12,8 @@
         }
     },
     {
-        "species_id": 2,
-        "species_name": "High Elf",
+        "id": 2,
+        "name": "High Elf",
         "stats_increase": {
             "intelligence": 0,
             "constitution": 0,
@@ -24,8 +24,8 @@
         }
     },
     {
-        "species_id": 3,
-        "species_name": "Half Orc",
+        "id": 3,
+        "name": "Half Orc",
         "stats_increase": {
             "intelligence": 0,
             "constitution": 0,
@@ -36,8 +36,8 @@
         }
     },
     {
-        "species_id": 4,
-        "species_name": "Dwarf",
+        "id": 4,
+        "name": "Dwarf",
         "stats_increase": {
             "intelligence": 0,
             "constitution": 0,

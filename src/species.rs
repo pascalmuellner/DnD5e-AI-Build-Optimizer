@@ -13,17 +13,17 @@ use crate::StatBlock;
 
 #[derive(Data, Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct Species {
-    pub species_id: i32,
-    pub species_name: String,
+    pub id: i32,
+    pub name: String,
     pub stats_increase: StatBlock,
 }
 
 impl Species {
     /// Creates a new [`Species`].
-    pub fn new(species_id: i32, species_name: String, stats_increase: StatBlock) -> Self {
+    pub fn new(id: i32, name: String, stats_increase: StatBlock) -> Self {
         Self {
-            species_id,
-            species_name,
+            id,
+            name,
             stats_increase,
         }
     }
@@ -31,7 +31,7 @@ impl Species {
 
 impl Display for Species {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", &self.species_name)
+        write!(f, "{:?}", &self.name)
     }
 }
 
@@ -55,13 +55,13 @@ impl SpeciesList {
         }
     }
     /// Adds a new species to the species list
-    pub fn add(&mut self, speciesa: Species) {
-        self.species.push(speciesa);
+    pub fn add(&mut self, _species: Species) {
+        self.species.push(_species);
     }
     pub fn get_species(&self, species_id: i32) -> Option<Species> {
-        for speciesa in self.species.clone() {
-            if speciesa.species_id == species_id {
-                return Some(speciesa);
+        for _species in self.species.clone() {
+            if _species.id == species_id {
+                return Some(_species);
             }
         }
         return None;
