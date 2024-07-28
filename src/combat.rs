@@ -1,4 +1,6 @@
 use crate::unit::Unit;
+use nalgebra::Point3;
+use rand::Rng;
 
 /// Combat is the structure that holds the combat relevant functionality.
 #[derive(Debug, Clone)]
@@ -13,30 +15,45 @@ pub struct CombatUnit {
     unit: Unit,
     initiative: i32,
     alive: bool,
+    position: Point3<i32>,
 }
 
 impl Combat {
-
     /// Creates a new [`Combat`].
     /// Initializes the turn order for all units.
     /// Takes ownership over the units.
-    pub fn new(player_units: &Vec<Unit>, enemy_units: &Vec<Unit>) -> Self {
+    pub fn new(player_units: &Vec<Unit>, enemy_units: &Vec<Unit>, close_combat: bool) -> Self {
         let mut turn_order = Vec::<CombatUnit>::new();
+        let mut rng = rand::thread_rng();
         for unit in player_units {
             let init = unit.calculate_initiative();
+
+            let position = if close_combat {
+                Point3::new(0, 0, 0)
+            } else {
+                Point3::new(rng.gen_range(0..50), rng.gen_range(0..50), 0)
+            };
+
             let combat_unit = CombatUnit {
                 unit: unit.clone(),
                 initiative: init,
                 alive: true,
+                position,
             };
             turn_order.push(combat_unit);
         }
         for unit in enemy_units.iter() {
             let init = unit.calculate_initiative();
+            let position = if close_combat {
+                Point3::new(5, 5, 5)
+            } else {
+                Point3::new(rng.gen_range(0..50), rng.gen_range(0..50), 0)
+            };
             let combat_unit = CombatUnit {
                 unit: unit.clone(),
                 initiative: init,
                 alive: true,
+                position,
             };
             turn_order.push(combat_unit);
         }
@@ -67,6 +84,6 @@ impl Combat {
     }
     /// Ends the combat and returns the ownership of the units.
     pub fn end(self) -> (Vec<Unit>, Vec<Unit>) {
-        return (self.player_units, self.enemy_units)
+        return (self.player_units, self.enemy_units);
     }
 }
