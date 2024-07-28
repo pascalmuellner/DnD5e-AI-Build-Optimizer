@@ -60,9 +60,9 @@ impl Unit {
             action_count: 1,
             stats,
             equipment: equip,
-            species: species,
-            spell_list: spell_list,
-            spell_slots: spell_slots,
+            species,
+            spell_list,
+            spell_slots,
         };
 
         if character.species != None {
