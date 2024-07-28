@@ -216,7 +216,8 @@ fn main() {
     let mut spells = SpellList::new("src/Data/spells.json");
 
     let spell = spells::Spell::new(
-        1,
+        2,
+        "Eldritch Blast".to_string(),
         0,
         SpellType::Cantrip,
         30,

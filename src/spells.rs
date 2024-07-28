@@ -11,6 +11,7 @@ use crate::{DieType, Unit};
 #[derive(Lens, Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct Spell {
     pub id: i32,
+    pub name: String,
     pub level: i32,
     pub typ: SpellType,
     pub range: i32,
@@ -23,6 +24,7 @@ pub struct Spell {
 impl Spell {
     pub fn new(
         id: i32,
+        name: String,
         level: i32,
         typ: SpellType,
         range: i32,
@@ -33,6 +35,7 @@ impl Spell {
     ) -> Self {
         Self {
             id,
+            name,
             level,
             typ,
             range,
