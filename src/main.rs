@@ -17,8 +17,10 @@ use rfd::FileDialog;
 use serde::{Deserialize, Serialize};
 use serde_json::Result;
 use species::*;
+use spells::*;
 use subclass::*;
 use unit::*;
+use unit_derived_lenses::spell_list;
 use vizia::prelude::*;
 use weapon::*;
 
@@ -210,6 +212,21 @@ impl Model for AppData {
 
 fn main() {
     // let mut combat = Combat::new(&vec![character], &vec![goblin]);
+
+    let mut spells = SpellList::new("src/Data/spells.json");
+
+    let spell = spells::Spell::new(
+        1,
+        0,
+        SpellType::Cantrip,
+        30,
+        SpellDuration::Instantaneous,
+        SpellSchool::Evocation,
+        Some(DieType::D6),
+        CastingTime::Action,
+    );
+    spells.add(spell);
+    spells.write("src/Data/spells.json");
 
     // combat.start();
     // combat.fight(combat.turn_order[0].clone());
